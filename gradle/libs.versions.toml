@@ -1,0 +1,21 @@
+[versions]
+# libraries
+annotations = "24.1.0"
+
+# plugins
+kotlin = "1.9.23"
+changelog = "2.2.0"
+gradleIntelliJPlatformPlugin = "2.0.0-beta1"
+qodana = "2023.3.2"
+rdgen = "2024.1.1"
+# https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
+
+[libraries]
+annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+
+[plugins]
+changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
+gradleIntelliJPlatformPlugin = { id = "org.jetbrains.intellij.platform", version.ref = "gradleIntelliJPlatformPlugin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
+rdgen = { id = "com.jetbrains.rdgen", version.ref = "rdgen" }

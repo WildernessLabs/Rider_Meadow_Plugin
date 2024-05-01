@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>TRACE;DEBUG;JET_MODE_ASSERT</DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)..\..\build\DotNetSdkPath.Generated.props" />
+
+  <PropertyGroup>
+    <JetBrainsRiderRdBackendCommonReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.RdBackend.Common.Props</JetBrainsRiderRdBackendCommonReference>
+    <JetBrainsRiderBackendReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.Rider.Backend.Props</JetBrainsRiderBackendReference>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeadowPlugin", "src\dotnet\Meadow\MeadowPlugin.csproj", "{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C56989BB-F07B-4FF6-AB36-782B93109977}"
+	ProjectSection(SolutionItems) = preProject
+		src\dotnet\Directory.Build.props = src\dotnet\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Hcom", "..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.csproj", "{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.CLI.Core", "..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.csproj", "{2B11A628-E4F4-46C9-BDED-90245B6689E6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

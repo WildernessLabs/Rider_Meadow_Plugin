@@ -1,0 +1,10 @@
+.gradle
+.idea
+.qodana
+build
+output
+[Bb]in/
+[Oo]bj/
+nuget.config
+.intellijPlatform/*
+*DotSettings.user

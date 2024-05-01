@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <RootNamespace>Meadow</RootNamespace>
+        <JetReferencesPrivate>false</JetReferencesPrivate>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.1.0"/>
+        <PackageReference Include="System.Management" Version="6.0.0"/>
+        <PackageReference Include="System.CodeDom" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0">
+            <Aliases>MicrosoftLogger</Aliases>
+        </PackageReference>
+        <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.csproj" />
+    </ItemGroup>
+
+    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')" />
+    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')" />
+    <ItemGroup>
+        <PackageReference Update="JetBrains.Rider.RdBackend.Common" PrivateAssets="all"/>
+        <PackageReference Update="JetBrains.Rider.Rider.Backend" PrivateAssets="all"/>
+    </ItemGroup>
+</Project>
