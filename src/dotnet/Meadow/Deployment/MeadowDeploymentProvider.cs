@@ -1,39 +1,24 @@
-﻿extern alias MicrosoftLogger;
-
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using JetBrains.Application.Threading;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
+using JetBrains.Rd.Base;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.Rider.Backend.Features.DeploymentHost.DeploymentProviders;
 using JetBrains.Rider.Model;
 using JetBrains.Threading;
-using Meadow.CLI.Core;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
+using JetBrains.Util;
+using JetBrains.Util.Logging;
 using Meadow.Generated;
-using MicrosoftLogger::Microsoft.Extensions.Logging;
 
 namespace Meadow.Deployment;
 
 [SolutionComponent]
-public class MeadowDeploymentProvider(IShellLocks locks) : IDeploymentProvider
+public class MeadowDeploymentProvider(MeadowCliExecutor cliExecutor) : IDeploymentProvider
 {
-    private static async Task DownloadOsSafe(Lifetime lifetime, MeadowDeviceHelper helper, DeploymentLogger deploymentLogger)
-    {
-        try
-        {
-            var osVersion = await helper.GetOSVersion(TimeSpan.FromSeconds(30), lifetime);
-
-            await new DownloadManager(deploymentLogger).DownloadOsBinaries(osVersion, cancellationToken: lifetime);
-        }
-        catch
-        {
-            deploymentLogger.LogWarning("OS download failed, make sure you have an active internet connection");
-        }
-    }
-
+    private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
+    
     public bool IsApplicable(DeploymentArgsBase args)
     {
         return args is MeadowDeploymentArgs;
@@ -46,59 +31,58 @@ public class MeadowDeploymentProvider(IShellLocks locks) : IDeploymentProvider
             throw new ArgumentException($"Unexpected deployment args: {args.GetType().Name}");
         }
 
-        locks.StartBackground(lifetime, async () =>
+        lifetime.StartBackground(async () =>
         {
-            var deploymentLogger = new DeploymentLogger(deploymentSession);
-            var debuggingPort = -1;
-
-            try
+            var result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
+            lifetime.StartMainUnguarded(() =>
             {
-                var meadowDevice =
-                    await MeadowDeviceManager.GetMeadowForSerialPort(meadowDeploymentArgs.Port, true, deploymentLogger);
-                if (meadowDevice == null)
-                {
-                    deploymentLogger.LogError(
-                        "A device has not been selected. Please attach a device, then select it from the Device list.");
-                    return new MeadowDeploymentResult(debuggingPort, DeploymentResultStatus.Failed);
-                }
+                deploymentSession.Result.Set(result);
+            }).NoAwait();
+        });
+    }
 
-                var appPath = meadowDeploymentArgs.AppPath;
-                if (!File.Exists(appPath))
-                {
-                    deploymentLogger.LogError("Deployment path '{path}' does not exist.", appPath);
-                    return new MeadowDeploymentResult(debuggingPort, DeploymentResultStatus.Failed);
-                }
+    private async Task<MeadowDeploymentResult> GetDeploymentResult(DeploymentSession deploymentSession, Lifetime lifetime,
+        MeadowDeploymentArgs meadowDeploymentArgs)
+    {
+        var deploymentLogger = new DeploymentLogger(deploymentSession);
+        try
+        {
 
-                using var helper = new MeadowDeviceHelper(meadowDevice, deploymentLogger);
-
-                await DownloadOsSafe(lifetime, helper, deploymentLogger);
-
-                try
-                {
-                    await helper.DeployApp(appPath, meadowDeploymentArgs.Debug, lifetime);
-                }
-                finally
-                {
-                    var running = await helper.GetMonoRunState(lifetime);
-                    if (!running)
-                    {
-                        await helper.MonoEnable(true, lifetime);
-                    }
-                }
-
-                if (meadowDeploymentArgs.Debug)
-                {
-                    debuggingPort = MeadowPortUtil.GetNextDebuggingPort();
-                    await helper.StartDebuggingSession(debuggingPort, lifetime);
-                }
-
-                return new MeadowDeploymentResult(debuggingPort, DeploymentResultStatus.Success);
-            }
-            catch (Exception e)
+            var appPath = meadowDeploymentArgs.AppPath;
+            if (!File.Exists(appPath))
             {
-                deploymentLogger.LogError(e, "Deployment failed.");
-                return new MeadowDeploymentResult(debuggingPort, DeploymentResultStatus.Failed);
+                deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
+                    DeployMessageKind.Error));
+                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
             }
-        }).NoAwait();
+
+            var exitCode = await cliExecutor.ExecuteMeadowCommandForSerialPort(
+                meadowDeploymentArgs.SerialPort,
+                [
+                    "app",
+                    "deploy",
+                    "--file",CommandLineUtil.QuoteIfNeeded(meadowDeploymentArgs.AppPath),
+                    "--includePdbs", meadowDeploymentArgs.Debug.ToString()
+                ], lifetime,
+                deploymentLogger.OnOutputAvailable,
+                deploymentLogger.OnErrorAvailable);
+
+            if (exitCode != 0)
+            {
+                deploymentSession.OutputAdded(new OutputMessage("Deployment failed.", DeployMessageKind.Error));
+                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+            }
+            
+            return new MeadowDeploymentResult(DeploymentResultStatus.Success);
+        }
+        catch (TaskCanceledException)
+        {
+            return new MeadowDeploymentResult(DeploymentResultStatus.Cancelled);
+        }
+        catch (Exception e)
+        {
+            OurLogger.Error(e);
+            return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+        }
     }
 }

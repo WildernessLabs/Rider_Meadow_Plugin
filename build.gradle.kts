@@ -1,6 +1,7 @@
 import com.jetbrains.plugin.structure.base.utils.isFile
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.Constants
+import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 import kotlin.io.path.isDirectory
 
 fun properties(key: String) = providers.gradleProperty(key)
@@ -154,47 +155,49 @@ tasks {
         }
     }
 
-    val publishDotnet by registering {
-        dependsOn(rdgen, generateDotNetSdkProperties, generateNuGetConfig)
+    val buildDotnet by registering {
+        dependsOn(generateDotNetSdkProperties, generateNuGetConfig)
         doLast {
             exec {
                 executable("dotnet")
-                args("publish", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "MeadowPlugin.sln")
+                args("build", "-c", dotnetBuildConfiguration)
             }
         }
     }
 
     buildPlugin {
-        dependsOn(publishDotnet)
+        dependsOn(buildDotnet)
     }
 
     register("prepare") {
         dependsOn(rdgen, generateDotNetSdkProperties, generateNuGetConfig)
     }
 
-    prepareSandbox {
-        dependsOn(publishDotnet)
+    withType<PrepareSandboxTask> {
+        dependsOn(buildDotnet)
 
-        val outputFolder = file("$projectDir/src/dotnet/Meadow/bin/$dotnetBuildConfiguration/publish")
-        val outputFolderPath = outputFolder.toPath()
+        val outputFolder = file("$projectDir/src/dotnet/Meadow/bin/$dotnetBuildConfiguration")
 
-        val files = outputFolder.walk().toList()
+        val meadowCliOutputFolder = file("$projectDir/../Meadow.CLI/Meadow.CLI/bin/$dotnetBuildConfiguration/publish")
 
-        for (fileName in files) {
-            if (fileName.isDirectory) {
-                continue
+        from(meadowCliOutputFolder) {
+            into("${rootProject.name}/Meadow.CLI")
+        }
+
+        val fileNames = listOf(
+            "MeadowPlugin.dll",
+            "MeadowPlugin.pdb",
+            "MeadowPlugin.deps.json"
+        )
+
+        for (fileName in fileNames) {
+            val file = File(outputFolder, fileName)
+            if (!file.exists()) {
+                throw IllegalStateException("File $file does not exist")
             }
-//            if (fileName.name.startsWith("JetBrains.", ignoreCase = true) ||
-//                fileName.name.startsWith("Debugger.", ignoreCase = true) ||
-//                fileName.name.startsWith("Rider.", ignoreCase = true) ||
-//                fileName.name.startsWith("Mono.", ignoreCase = true)) {
-//                continue
-//            }
 
-            val relativeDirectory = outputFolderPath.relativize(fileName.parentFile.toPath())
-
-            from(fileName) {
-                into("${rootProject.name}/dotnet/${relativeDirectory}")
+            from(file) {
+                into("${rootProject.name}/dotnet")
             }
         }
     }

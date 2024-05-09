@@ -10,7 +10,7 @@ import java.io.OutputStream
 
 class MeadowDummyProcessHandler(private val meadowDevice: MeadowDevice, private val project: Project) : ProcessHandler() {
     override fun destroyProcessImpl() {
-        project.solution.meadowPluginModel.resetDevice.start(project.lifetime, meadowDevice.port)
+        project.solution.meadowPluginModel.terminateTasks.start(project.lifetime, meadowDevice.port)
     }
 
     override fun detachProcessImpl() {

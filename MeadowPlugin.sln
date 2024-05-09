@@ -10,9 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\dotnet\Directory.Build.props = src\dotnet\Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Hcom", "..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.csproj", "{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.CLI", "..\Meadow.CLI\Meadow.CLI\Meadow.CLI.csproj", "{8FF0AF4C-F242-401A-848C-C07F89CA629E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.CLI.Core", "..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.csproj", "{2B11A628-E4F4-46C9-BDED-90245B6689E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.CLI.Core.6.0.0", "..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.6.0.0.csproj", "{03366933-EAFA-41CF-B70F-3BA16AA6918C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Hcom.6.0.0", "..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.6.0.0.csproj", "{9D35617D-5719-41DB-A128-F615011D73F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,13 +33,17 @@ Global
 		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{916C7955-4F3C-4E34-BCF0-D2E2AF4F2828}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B11A628-E4F4-46C9-BDED-90245B6689E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FF0AF4C-F242-401A-848C-C07F89CA629E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FF0AF4C-F242-401A-848C-C07F89CA629E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FF0AF4C-F242-401A-848C-C07F89CA629E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FF0AF4C-F242-401A-848C-C07F89CA629E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03366933-EAFA-41CF-B70F-3BA16AA6918C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03366933-EAFA-41CF-B70F-3BA16AA6918C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03366933-EAFA-41CF-B70F-3BA16AA6918C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03366933-EAFA-41CF-B70F-3BA16AA6918C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D35617D-5719-41DB-A128-F615011D73F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D35617D-5719-41DB-A128-F615011D73F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D35617D-5719-41DB-A128-F615011D73F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D35617D-5719-41DB-A128-F615011D73F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

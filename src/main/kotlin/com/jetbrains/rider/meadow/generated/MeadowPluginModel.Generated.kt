@@ -20,7 +20,8 @@ import kotlin.jvm.JvmStatic
  */
 class MeadowPluginModel private constructor(
     private val _getSerialPorts: RdCall<Unit, List<String>>,
-    private val _resetDevice: RdCall<String, Unit>
+    private val _startDebugServer: RdCall<DebugServerInfo, Unit>,
+    private val _terminateTasks: RdCall<String, Unit>
 ) : RdExtBase() {
     //companion
     
@@ -30,6 +31,7 @@ class MeadowPluginModel private constructor(
             val classLoader = javaClass.classLoader
             serializers.register(LazyCompanionMarshaller(RdId(-1686321114733927496), classLoader, "com.jetbrains.rider.meadow.generated.MeadowDeploymentArgs"))
             serializers.register(LazyCompanionMarshaller(RdId(2758887227611271224), classLoader, "com.jetbrains.rider.meadow.generated.MeadowDeploymentResult"))
+            serializers.register(LazyCompanionMarshaller(RdId(7163900993924547761), classLoader, "com.jetbrains.rider.meadow.generated.DebugServerInfo"))
         }
         
         
@@ -37,7 +39,7 @@ class MeadowPluginModel private constructor(
         
         private val __StringListSerializer = FrameworkMarshallers.String.list()
         
-        const val serializationHash = 5053242627264958697L
+        const val serializationHash = 6353470765556207068L
         
     }
     override val serializersOwner: ISerializersOwner get() = MeadowPluginModel
@@ -45,7 +47,8 @@ class MeadowPluginModel private constructor(
     
     //fields
     val getSerialPorts: IRdCall<Unit, List<String>> get() = _getSerialPorts
-    val resetDevice: IRdCall<String, Unit> get() = _resetDevice
+    val startDebugServer: IRdCall<DebugServerInfo, Unit> get() = _startDebugServer
+    val terminateTasks: IRdCall<String, Unit> get() = _terminateTasks
     //methods
     //initializer
     init {
@@ -54,13 +57,15 @@ class MeadowPluginModel private constructor(
     
     init {
         bindableChildren.add("getSerialPorts" to _getSerialPorts)
-        bindableChildren.add("resetDevice" to _resetDevice)
+        bindableChildren.add("startDebugServer" to _startDebugServer)
+        bindableChildren.add("terminateTasks" to _terminateTasks)
     }
     
     //secondary constructor
     internal constructor(
     ) : this(
         RdCall<Unit, List<String>>(FrameworkMarshallers.Void, __StringListSerializer),
+        RdCall<DebugServerInfo, Unit>(DebugServerInfo, FrameworkMarshallers.Void),
         RdCall<String, Unit>(FrameworkMarshallers.String, FrameworkMarshallers.Void)
     )
     
@@ -71,7 +76,8 @@ class MeadowPluginModel private constructor(
         printer.println("MeadowPluginModel (")
         printer.indent {
             print("getSerialPorts = "); _getSerialPorts.print(printer); println()
-            print("resetDevice = "); _resetDevice.print(printer); println()
+            print("startDebugServer = "); _startDebugServer.print(printer); println()
+            print("terminateTasks = "); _terminateTasks.print(printer); println()
         }
         printer.print(")")
     }
@@ -79,7 +85,8 @@ class MeadowPluginModel private constructor(
     override fun deepClone(): MeadowPluginModel   {
         return MeadowPluginModel(
             _getSerialPorts.deepClonePolymorphic(),
-            _resetDevice.deepClonePolymorphic()
+            _startDebugServer.deepClonePolymorphic(),
+            _terminateTasks.deepClonePolymorphic()
         )
     }
     //contexts
@@ -91,10 +98,75 @@ val com.jetbrains.rd.ide.model.Solution.meadowPluginModel get() = getOrCreateExt
 
 
 /**
+ * #### Generated from [MeadowPluginModel.kt:22]
+ */
+data class DebugServerInfo (
+    val serialPort: String,
+    val debugPort: Int
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<DebugServerInfo> {
+        override val _type: KClass<DebugServerInfo> = DebugServerInfo::class
+        override val id: RdId get() = RdId(7163900993924547761)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DebugServerInfo  {
+            val serialPort = buffer.readString()
+            val debugPort = buffer.readInt()
+            return DebugServerInfo(serialPort, debugPort)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DebugServerInfo)  {
+            buffer.writeString(value.serialPort)
+            buffer.writeInt(value.debugPort)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as DebugServerInfo
+        
+        if (serialPort != other.serialPort) return false
+        if (debugPort != other.debugPort) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + serialPort.hashCode()
+        __r = __r*31 + debugPort.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("DebugServerInfo (")
+        printer.indent {
+            print("serialPort = "); serialPort.print(printer); println()
+            print("debugPort = "); debugPort.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
  * #### Generated from [MeadowPluginModel.kt:13]
  */
 class MeadowDeploymentArgs (
-    val port: String,
+    val serialPort: String,
     val appPath: String,
     val debug: Boolean,
     projectKind: com.jetbrains.rider.model.RunnableProjectKind,
@@ -113,16 +185,16 @@ class MeadowDeploymentArgs (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MeadowDeploymentArgs  {
             val projectKind = com.jetbrains.rider.model.RunnableProjectKind.read(ctx, buffer)
             val projectFilePath = buffer.readString()
-            val port = buffer.readString()
+            val serialPort = buffer.readString()
             val appPath = buffer.readString()
             val debug = buffer.readBool()
-            return MeadowDeploymentArgs(port, appPath, debug, projectKind, projectFilePath)
+            return MeadowDeploymentArgs(serialPort, appPath, debug, projectKind, projectFilePath)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MeadowDeploymentArgs)  {
             com.jetbrains.rider.model.RunnableProjectKind.write(ctx, buffer, value.projectKind)
             buffer.writeString(value.projectFilePath)
-            buffer.writeString(value.port)
+            buffer.writeString(value.serialPort)
             buffer.writeString(value.appPath)
             buffer.writeBool(value.debug)
         }
@@ -140,7 +212,7 @@ class MeadowDeploymentArgs (
         
         other as MeadowDeploymentArgs
         
-        if (port != other.port) return false
+        if (serialPort != other.serialPort) return false
         if (appPath != other.appPath) return false
         if (debug != other.debug) return false
         if (projectKind != other.projectKind) return false
@@ -151,7 +223,7 @@ class MeadowDeploymentArgs (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
-        __r = __r*31 + port.hashCode()
+        __r = __r*31 + serialPort.hashCode()
         __r = __r*31 + appPath.hashCode()
         __r = __r*31 + debug.hashCode()
         __r = __r*31 + projectKind.hashCode()
@@ -162,7 +234,7 @@ class MeadowDeploymentArgs (
     override fun print(printer: PrettyPrinter)  {
         printer.println("MeadowDeploymentArgs (")
         printer.indent {
-            print("port = "); port.print(printer); println()
+            print("serialPort = "); serialPort.print(printer); println()
             print("appPath = "); appPath.print(printer); println()
             print("debug = "); debug.print(printer); println()
             print("projectKind = "); projectKind.print(printer); println()
@@ -182,7 +254,6 @@ class MeadowDeploymentArgs (
  * #### Generated from [MeadowPluginModel.kt:19]
  */
 class MeadowDeploymentResult (
-    val debugPort: Int,
     status: com.jetbrains.rider.model.DeploymentResultStatus
 ) : com.jetbrains.rider.model.DeploymentResultBase (
     status
@@ -196,13 +267,11 @@ class MeadowDeploymentResult (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MeadowDeploymentResult  {
             val status = buffer.readEnum<com.jetbrains.rider.model.DeploymentResultStatus>()
-            val debugPort = buffer.readInt()
-            return MeadowDeploymentResult(debugPort, status)
+            return MeadowDeploymentResult(status)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MeadowDeploymentResult)  {
             buffer.writeEnum(value.status)
-            buffer.writeInt(value.debugPort)
         }
         
         
@@ -218,7 +287,6 @@ class MeadowDeploymentResult (
         
         other as MeadowDeploymentResult
         
-        if (debugPort != other.debugPort) return false
         if (status != other.status) return false
         
         return true
@@ -226,7 +294,6 @@ class MeadowDeploymentResult (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
-        __r = __r*31 + debugPort.hashCode()
         __r = __r*31 + status.hashCode()
         return __r
     }
@@ -234,7 +301,6 @@ class MeadowDeploymentResult (
     override fun print(printer: PrettyPrinter)  {
         printer.println("MeadowDeploymentResult (")
         printer.indent {
-            print("debugPort = "); debugPort.print(printer); println()
             print("status = "); status.print(printer); println()
         }
         printer.print(")")

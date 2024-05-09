@@ -34,10 +34,6 @@ class MeadowConfiguration(
         JDOMExternalizerUtil.writeField(element, PROJECT_PATH, parameters.projectFilePath)
     }
 
-    override fun getBeforeRunTasks(): MutableList<BeforeRunTask<*>> {
-        return super<RiderRunConfiguration>.getBeforeRunTasks()
-    }
-
     override fun getProjectFilePath(): String {
         return parameters.projectFilePath
     }

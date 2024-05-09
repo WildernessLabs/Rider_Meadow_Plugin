@@ -43,31 +43,38 @@ namespace Meadow.Generated
     //fields
     //public fields
     [NotNull] public IRdEndpoint<Unit, List<string>> GetSerialPorts => _GetSerialPorts;
-    [NotNull] public IRdEndpoint<string, Unit> ResetDevice => _ResetDevice;
+    [NotNull] public IRdEndpoint<DebugServerInfo, Unit> StartDebugServer => _StartDebugServer;
+    [NotNull] public IRdEndpoint<string, Unit> TerminateTasks => _TerminateTasks;
     
     //private fields
     [NotNull] private readonly RdCall<Unit, List<string>> _GetSerialPorts;
-    [NotNull] private readonly RdCall<string, Unit> _ResetDevice;
+    [NotNull] private readonly RdCall<DebugServerInfo, Unit> _StartDebugServer;
+    [NotNull] private readonly RdCall<string, Unit> _TerminateTasks;
     
     //primary constructor
     private MeadowPluginModel(
       [NotNull] RdCall<Unit, List<string>> getSerialPorts,
-      [NotNull] RdCall<string, Unit> resetDevice
+      [NotNull] RdCall<DebugServerInfo, Unit> startDebugServer,
+      [NotNull] RdCall<string, Unit> terminateTasks
     )
     {
       if (getSerialPorts == null) throw new ArgumentNullException("getSerialPorts");
-      if (resetDevice == null) throw new ArgumentNullException("resetDevice");
+      if (startDebugServer == null) throw new ArgumentNullException("startDebugServer");
+      if (terminateTasks == null) throw new ArgumentNullException("terminateTasks");
       
       _GetSerialPorts = getSerialPorts;
-      _ResetDevice = resetDevice;
+      _StartDebugServer = startDebugServer;
+      _TerminateTasks = terminateTasks;
       _GetSerialPorts.Async = true;
       BindableChildren.Add(new KeyValuePair<string, object>("getSerialPorts", _GetSerialPorts));
-      BindableChildren.Add(new KeyValuePair<string, object>("resetDevice", _ResetDevice));
+      BindableChildren.Add(new KeyValuePair<string, object>("startDebugServer", _StartDebugServer));
+      BindableChildren.Add(new KeyValuePair<string, object>("terminateTasks", _TerminateTasks));
     }
     //secondary constructor
     internal MeadowPluginModel (
     ) : this (
       new RdCall<Unit, List<string>>(JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid, ReadStringList, WriteStringList),
+      new RdCall<DebugServerInfo, Unit>(DebugServerInfo.Read, DebugServerInfo.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
       new RdCall<string, Unit>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid)
     ) {}
     //deconstruct trait
@@ -77,7 +84,7 @@ namespace Meadow.Generated
     
     public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
     
-    protected override long SerializationHash => 5053242627264958697L;
+    protected override long SerializationHash => 6353470765556207068L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -101,7 +108,8 @@ namespace Meadow.Generated
       printer.Println("MeadowPluginModel (");
       using (printer.IndentCookie()) {
         printer.Print("getSerialPorts = "); _GetSerialPorts.PrintEx(printer); printer.Println();
-        printer.Print("resetDevice = "); _ResetDevice.PrintEx(printer); printer.Println();
+        printer.Print("startDebugServer = "); _StartDebugServer.PrintEx(printer); printer.Println();
+        printer.Print("terminateTasks = "); _TerminateTasks.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -123,20 +131,113 @@ namespace Meadow.Generated
   
   
   /// <summary>
+  /// <p>Generated from: MeadowPluginModel.kt:22</p>
+  /// </summary>
+  public sealed class DebugServerInfo : IPrintable, IEquatable<DebugServerInfo>
+  {
+    //fields
+    //public fields
+    [NotNull] public string SerialPort {get; private set;}
+    public int DebugPort {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public DebugServerInfo(
+      [NotNull] string serialPort,
+      int debugPort
+    )
+    {
+      if (serialPort == null) throw new ArgumentNullException("serialPort");
+      
+      SerialPort = serialPort;
+      DebugPort = debugPort;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string serialPort, out int debugPort)
+    {
+      serialPort = SerialPort;
+      debugPort = DebugPort;
+    }
+    //statics
+    
+    public static CtxReadDelegate<DebugServerInfo> Read = (ctx, reader) => 
+    {
+      var serialPort = reader.ReadString();
+      var debugPort = reader.ReadInt();
+      var _result = new DebugServerInfo(serialPort, debugPort);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<DebugServerInfo> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.SerialPort);
+      writer.Write(value.DebugPort);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((DebugServerInfo) obj);
+    }
+    public bool Equals(DebugServerInfo other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return SerialPort == other.SerialPort && DebugPort == other.DebugPort;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + SerialPort.GetHashCode();
+        hash = hash * 31 + DebugPort.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("DebugServerInfo (");
+      using (printer.IndentCookie()) {
+        printer.Print("serialPort = "); SerialPort.PrintEx(printer); printer.Println();
+        printer.Print("debugPort = "); DebugPort.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: MeadowPluginModel.kt:13</p>
   /// </summary>
   public sealed class MeadowDeploymentArgs : JetBrains.Rider.Model.DeploymentArgsBase
   {
     //fields
     //public fields
-    [NotNull] public string Port {get; private set;}
+    [NotNull] public string SerialPort {get; private set;}
     [NotNull] public string AppPath {get; private set;}
     public bool Debug {get; private set;}
     
     //private fields
     //primary constructor
     public MeadowDeploymentArgs(
-      [NotNull] string port,
+      [NotNull] string serialPort,
       [NotNull] string appPath,
       bool debug,
       [NotNull] JetBrains.Rider.Model.RunnableProjectKind projectKind,
@@ -146,10 +247,10 @@ namespace Meadow.Generated
       projectFilePath
      ) 
     {
-      if (port == null) throw new ArgumentNullException("port");
+      if (serialPort == null) throw new ArgumentNullException("serialPort");
       if (appPath == null) throw new ArgumentNullException("appPath");
       
-      Port = port;
+      SerialPort = serialPort;
       AppPath = appPath;
       Debug = debug;
     }
@@ -161,10 +262,10 @@ namespace Meadow.Generated
     {
       var projectKind = JetBrains.Rider.Model.RunnableProjectKind.Read(ctx, reader);
       var projectFilePath = reader.ReadString();
-      var port = reader.ReadString();
+      var serialPort = reader.ReadString();
       var appPath = reader.ReadString();
       var debug = reader.ReadBool();
-      var _result = new MeadowDeploymentArgs(port, appPath, debug, projectKind, projectFilePath);
+      var _result = new MeadowDeploymentArgs(serialPort, appPath, debug, projectKind, projectFilePath);
       return _result;
     };
     
@@ -172,7 +273,7 @@ namespace Meadow.Generated
     {
       JetBrains.Rider.Model.RunnableProjectKind.Write(ctx, writer, value.ProjectKind);
       writer.Write(value.ProjectFilePath);
-      writer.Write(value.Port);
+      writer.Write(value.SerialPort);
       writer.Write(value.AppPath);
       writer.Write(value.Debug);
     };
@@ -193,14 +294,14 @@ namespace Meadow.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Port == other.Port && AppPath == other.AppPath && Debug == other.Debug && Equals(ProjectKind, other.ProjectKind) && ProjectFilePath == other.ProjectFilePath;
+      return SerialPort == other.SerialPort && AppPath == other.AppPath && Debug == other.Debug && Equals(ProjectKind, other.ProjectKind) && ProjectFilePath == other.ProjectFilePath;
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
-        hash = hash * 31 + Port.GetHashCode();
+        hash = hash * 31 + SerialPort.GetHashCode();
         hash = hash * 31 + AppPath.GetHashCode();
         hash = hash * 31 + Debug.GetHashCode();
         hash = hash * 31 + ProjectKind.GetHashCode();
@@ -213,7 +314,7 @@ namespace Meadow.Generated
     {
       printer.Println("MeadowDeploymentArgs (");
       using (printer.IndentCookie()) {
-        printer.Print("port = "); Port.PrintEx(printer); printer.Println();
+        printer.Print("serialPort = "); SerialPort.PrintEx(printer); printer.Println();
         printer.Print("appPath = "); AppPath.PrintEx(printer); printer.Println();
         printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
         printer.Print("projectKind = "); ProjectKind.PrintEx(printer); printer.Println();
@@ -238,18 +339,15 @@ namespace Meadow.Generated
   {
     //fields
     //public fields
-    public int DebugPort {get; private set;}
     
     //private fields
     //primary constructor
     public MeadowDeploymentResult(
-      int debugPort,
       JetBrains.Rider.Model.DeploymentResultStatus status
     ) : base (
       status
      ) 
     {
-      DebugPort = debugPort;
     }
     //secondary constructor
     //deconstruct trait
@@ -258,15 +356,13 @@ namespace Meadow.Generated
     public static new CtxReadDelegate<MeadowDeploymentResult> Read = (ctx, reader) => 
     {
       var status = (JetBrains.Rider.Model.DeploymentResultStatus)reader.ReadInt();
-      var debugPort = reader.ReadInt();
-      var _result = new MeadowDeploymentResult(debugPort, status);
+      var _result = new MeadowDeploymentResult(status);
       return _result;
     };
     
     public static new CtxWriteDelegate<MeadowDeploymentResult> Write = (ctx, writer, value) => 
     {
       writer.Write((int)value.Status);
-      writer.Write(value.DebugPort);
     };
     
     //constants
@@ -285,14 +381,13 @@ namespace Meadow.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return DebugPort == other.DebugPort && Status == other.Status;
+      return Status == other.Status;
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
-        hash = hash * 31 + DebugPort.GetHashCode();
         hash = hash * 31 + (int) Status;
         return hash;
       }
@@ -302,7 +397,6 @@ namespace Meadow.Generated
     {
       printer.Println("MeadowDeploymentResult (");
       using (printer.IndentCookie()) {
-        printer.Print("debugPort = "); DebugPort.PrintEx(printer); printer.Println();
         printer.Print("status = "); Status.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
