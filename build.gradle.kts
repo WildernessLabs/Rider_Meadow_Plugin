@@ -70,6 +70,10 @@ sourceSets {
     }
 }
 
+intellijPlatform {
+    buildSearchableOptions = false
+}
+
 tasks {
     val generateDotNetSdkProperties by registering {
         val dotNetSdkGeneratedPropsFile = File(projectDir, "build/DotNetSdkPath.Generated.props")
