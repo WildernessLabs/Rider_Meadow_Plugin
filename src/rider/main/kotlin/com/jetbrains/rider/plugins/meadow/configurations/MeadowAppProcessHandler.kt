@@ -33,7 +33,7 @@ class MeadowAppProcessHandler(private val meadowDevice: MeadowDevice, private va
     }
 
     override fun detachProcessImpl() {
-        destroyProcessImpl()
+        notifyProcessDetached()
     }
 
     override fun detachIsDefault(): Boolean = false
