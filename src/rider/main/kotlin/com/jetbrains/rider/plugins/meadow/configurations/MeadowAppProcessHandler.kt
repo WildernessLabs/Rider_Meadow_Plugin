@@ -10,7 +10,7 @@ import java.io.OutputStream
 
 class MeadowAppProcessHandler(private val meadowDevice: MeadowDevice, private val project: Project) : ProcessHandler() {
     override fun destroyProcessImpl() {
-        project.solution.meadowPluginModel.terminate.start(project.lifetime, meadowDevice.port)
+        project.solution.meadowPluginModel.terminate.start(project.lifetime, createRunnerInfoOnPort(meadowDevice))
         notifyProcessTerminated(0)
     }
 

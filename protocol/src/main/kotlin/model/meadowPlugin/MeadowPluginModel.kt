@@ -10,8 +10,18 @@ import com.jetbrains.rider.model.nova.ide.rider.DeploymentHost.DeploymentResultB
 @Suppress("unused")
 object MeadowPluginModel : Ext(SolutionModel.Solution) {
 
-    private val MeadowDeploymentArgs = structdef extends DeploymentArgsBase {
+    private val CliRunnerInfoBase = basestruct {
+        field("cliPath", PredefinedType.string)
+    }
+
+    private val CliRunnerInfo = structdef extends CliRunnerInfoBase {}
+
+    private val CliRunnerInfoOnPort = structdef extends CliRunnerInfoBase {
         field("serialPort", PredefinedType.string)
+    }
+
+    private val MeadowDeploymentArgs = structdef extends DeploymentArgsBase {
+        field("runnerInfo", CliRunnerInfoOnPort)
         field("appPath", PredefinedType.string)
         field("debug", PredefinedType.bool)
     }
@@ -20,14 +30,14 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
     }
 
     private val DebugServerInfo = structdef {
-        field("serialPort", PredefinedType.string)
+        field("runnerInfo", CliRunnerInfoOnPort)
         field("debugPort", PredefinedType.int)
     }
 
     init {
-        call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
+        call("getSerialPorts", CliRunnerInfo, immutableList(PredefinedType.string)).async
         call("startDebugServer", DebugServerInfo, PredefinedType.void).async
-        call("terminate", PredefinedType.string, PredefinedType.void).async
+        call("terminate", CliRunnerInfoOnPort, PredefinedType.void).async
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
         setting(CSharp50Generator.Namespace, "MeadowPlugin.Model")
     }

@@ -24,6 +24,7 @@ public class MeadowCliExecutor(IShellLocks locks)
     public Task<int> ExecuteMeadowCommandForSerialPort(
         string serialPort,
         string[] command,
+        string cliPath,
         Lifetime lifetime,
         Action<string>? outputConsumer = null,
         Action<string>? errorConsumer = null)
@@ -33,6 +34,7 @@ public class MeadowCliExecutor(IShellLocks locks)
             _serialPortTaskLifetimes.TryGetValue(serialPort)?.Terminate();
             var meadowTask = ExecuteMeadowCommandInternal(
                 command.Append("--SerialPort").Append(serialPort).ToArray(),
+                cliPath,
                 lifetime,
                 outputConsumer,
                 errorConsumer);
@@ -43,28 +45,31 @@ public class MeadowCliExecutor(IShellLocks locks)
 
     public Task<int> ExecuteMeadowCommand(
         string[] command,
+        string cliPath,
         Lifetime lifetime,
         Action<string>? outputConsumer = null,
         Action<string>? errorConsumer = null)
     {
-        return ExecuteMeadowCommandInternal(command, lifetime, outputConsumer, errorConsumer).Item1;
+        return ExecuteMeadowCommandInternal(command, cliPath, lifetime, outputConsumer, errorConsumer).Item1;
     }
 
     private Tuple<Task<int>, LifetimeDefinition> ExecuteMeadowCommandInternal(
         string[] command,
+        string cliPath,
         Lifetime lifetime,
         Action<string>? outputConsumer,
         Action<string>? errorConsumer)
     {
         var processLaunchLifetimeDef = lifetime.CreateNested();
         var processLaunchLifetime = processLaunchLifetimeDef.Lifetime;
-        var task = ExecuteMeadowCommand(command, processLaunchLifetime, processLaunchLifetimeDef, outputConsumer,
+        var task = ExecuteMeadowCommand(command, cliPath, processLaunchLifetime, processLaunchLifetimeDef, outputConsumer,
             errorConsumer);
         return Tuple.Create(task, processLaunchLifetimeDef);
     }
 
     private async Task<int> ExecuteMeadowCommand(
         string[] command,
+        string cliPath,
         Lifetime lifetime,
         LifetimeDefinition lifetimeDefinition,
         Action<string>? outputConsumer,
@@ -86,7 +91,7 @@ public class MeadowCliExecutor(IShellLocks locks)
                 return 1;
             }
 
-            var startInfo = new ProcessStartInfo("C:/Program Files/dotnet/dotnet.exe", //TODO
+            var startInfo = new ProcessStartInfo(cliPath,
                 command.Prepend("--roll-forward", "LatestMajor",
                     CommandLineUtil.QuoteIfNeeded($"{workingDirectory}/meadow.dll")))
             {

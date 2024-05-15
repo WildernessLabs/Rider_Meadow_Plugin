@@ -24,7 +24,7 @@ fun deploySync(executable: MeadowExecutable, debug: Boolean, project: Project) :
 suspend fun deploy(executable: MeadowExecutable, debug: Boolean, project: Project): MeadowDeploymentResult {
     return RiderDeploymentHost.getInstance(project).deployWithProgress(
         MeadowDeploymentArgs(
-            executable.device.port,
+            createRunnerInfoOnPort(executable.device),
             executable.appPath.absolutePath,
             debug,
             executable.runnableProject.kind,

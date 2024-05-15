@@ -42,20 +42,20 @@ namespace MeadowPlugin.Model
   {
     //fields
     //public fields
-    [NotNull] public IRdEndpoint<Unit, List<string>> GetSerialPorts => _GetSerialPorts;
+    [NotNull] public IRdEndpoint<CliRunnerInfo, List<string>> GetSerialPorts => _GetSerialPorts;
     [NotNull] public IRdEndpoint<DebugServerInfo, Unit> StartDebugServer => _StartDebugServer;
-    [NotNull] public IRdEndpoint<string, Unit> Terminate => _Terminate;
+    [NotNull] public IRdEndpoint<CliRunnerInfoOnPort, Unit> Terminate => _Terminate;
     
     //private fields
-    [NotNull] private readonly RdCall<Unit, List<string>> _GetSerialPorts;
+    [NotNull] private readonly RdCall<CliRunnerInfo, List<string>> _GetSerialPorts;
     [NotNull] private readonly RdCall<DebugServerInfo, Unit> _StartDebugServer;
-    [NotNull] private readonly RdCall<string, Unit> _Terminate;
+    [NotNull] private readonly RdCall<CliRunnerInfoOnPort, Unit> _Terminate;
     
     //primary constructor
     private MeadowPluginModel(
-      [NotNull] RdCall<Unit, List<string>> getSerialPorts,
+      [NotNull] RdCall<CliRunnerInfo, List<string>> getSerialPorts,
       [NotNull] RdCall<DebugServerInfo, Unit> startDebugServer,
-      [NotNull] RdCall<string, Unit> terminate
+      [NotNull] RdCall<CliRunnerInfoOnPort, Unit> terminate
     )
     {
       if (getSerialPorts == null) throw new ArgumentNullException("getSerialPorts");
@@ -75,9 +75,9 @@ namespace MeadowPlugin.Model
     //secondary constructor
     internal MeadowPluginModel (
     ) : this (
-      new RdCall<Unit, List<string>>(JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid, ReadStringList, WriteStringList),
+      new RdCall<CliRunnerInfo, List<string>>(CliRunnerInfo.Read, CliRunnerInfo.Write, ReadStringList, WriteStringList),
       new RdCall<DebugServerInfo, Unit>(DebugServerInfo.Read, DebugServerInfo.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
-      new RdCall<string, Unit>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid)
+      new RdCall<CliRunnerInfoOnPort, Unit>(CliRunnerInfoOnPort.Read, CliRunnerInfoOnPort.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid)
     ) {}
     //deconstruct trait
     //statics
@@ -86,13 +86,16 @@ namespace MeadowPlugin.Model
     
     public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
     
-    protected override long SerializationHash => -2257001314127068400L;
+    protected override long SerializationHash => -1141783146362402166L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
     {
+      serializers.Register(CliRunnerInfo.Read, CliRunnerInfo.Write);
+      serializers.Register(CliRunnerInfoOnPort.Read, CliRunnerInfoOnPort.Write);
       serializers.Register(MeadowDeploymentArgs.Read, MeadowDeploymentArgs.Write);
       serializers.Register(MeadowDeploymentResult.Read, MeadowDeploymentResult.Write);
+      serializers.Register(CliRunnerInfoBase_Unknown.Read, CliRunnerInfoBase_Unknown.Write);
       
       serializers.RegisterToplevelOnce(typeof(JetBrains.Rider.Model.IdeRoot), JetBrains.Rider.Model.IdeRoot.RegisterDeclaredTypesSerializers);
     }
@@ -133,47 +136,327 @@ namespace MeadowPlugin.Model
   
   
   /// <summary>
-  /// <p>Generated from: MeadowPluginModel.kt:22</p>
+  /// <p>Generated from: MeadowPluginModel.kt:17</p>
+  /// </summary>
+  public sealed class CliRunnerInfo : CliRunnerInfoBase
+  {
+    //fields
+    //public fields
+    
+    //private fields
+    //primary constructor
+    public CliRunnerInfo(
+      [NotNull] string cliPath
+    ) : base (
+      cliPath
+     ) 
+    {
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static new CtxReadDelegate<CliRunnerInfo> Read = (ctx, reader) => 
+    {
+      var cliPath = reader.ReadString();
+      var _result = new CliRunnerInfo(cliPath);
+      return _result;
+    };
+    
+    public static new CtxWriteDelegate<CliRunnerInfo> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.CliPath);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((CliRunnerInfo) obj);
+    }
+    public bool Equals(CliRunnerInfo other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return CliPath == other.CliPath;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + CliPath.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("CliRunnerInfo (");
+      using (printer.IndentCookie()) {
+        printer.Print("cliPath = "); CliPath.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: MeadowPluginModel.kt:13</p>
+  /// </summary>
+  public abstract class CliRunnerInfoBase{
+    //fields
+    //public fields
+    [NotNull] public string CliPath {get; private set;}
+    
+    //private fields
+    //primary constructor
+    protected CliRunnerInfoBase(
+      [NotNull] string cliPath
+    )
+    {
+      if (cliPath == null) throw new ArgumentNullException("cliPath");
+      
+      CliPath = cliPath;
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static CtxReadDelegate<CliRunnerInfoBase> Read = Polymorphic<CliRunnerInfoBase>.ReadAbstract(CliRunnerInfoBase_Unknown.Read);
+    
+    public static CtxWriteDelegate<CliRunnerInfoBase> Write = Polymorphic<CliRunnerInfoBase>.Write;
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    //hash code trait
+    //pretty print
+    //toString
+  }
+  
+  
+  public sealed class CliRunnerInfoBase_Unknown : CliRunnerInfoBase
+  {
+    //fields
+    //public fields
+    
+    //private fields
+    //primary constructor
+    public CliRunnerInfoBase_Unknown(
+      [NotNull] string cliPath
+    ) : base (
+      cliPath
+     ) 
+    {
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static new CtxReadDelegate<CliRunnerInfoBase_Unknown> Read = (ctx, reader) => 
+    {
+      var cliPath = reader.ReadString();
+      var _result = new CliRunnerInfoBase_Unknown(cliPath);
+      return _result;
+    };
+    
+    public static new CtxWriteDelegate<CliRunnerInfoBase_Unknown> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.CliPath);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((CliRunnerInfoBase_Unknown) obj);
+    }
+    public bool Equals(CliRunnerInfoBase_Unknown other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return CliPath == other.CliPath;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + CliPath.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("CliRunnerInfoBase_Unknown (");
+      using (printer.IndentCookie()) {
+        printer.Print("cliPath = "); CliPath.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: MeadowPluginModel.kt:19</p>
+  /// </summary>
+  public sealed class CliRunnerInfoOnPort : CliRunnerInfoBase
+  {
+    //fields
+    //public fields
+    [NotNull] public string SerialPort {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public CliRunnerInfoOnPort(
+      [NotNull] string serialPort,
+      [NotNull] string cliPath
+    ) : base (
+      cliPath
+     ) 
+    {
+      if (serialPort == null) throw new ArgumentNullException("serialPort");
+      
+      SerialPort = serialPort;
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static new CtxReadDelegate<CliRunnerInfoOnPort> Read = (ctx, reader) => 
+    {
+      var cliPath = reader.ReadString();
+      var serialPort = reader.ReadString();
+      var _result = new CliRunnerInfoOnPort(serialPort, cliPath);
+      return _result;
+    };
+    
+    public static new CtxWriteDelegate<CliRunnerInfoOnPort> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.CliPath);
+      writer.Write(value.SerialPort);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((CliRunnerInfoOnPort) obj);
+    }
+    public bool Equals(CliRunnerInfoOnPort other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return SerialPort == other.SerialPort && CliPath == other.CliPath;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + SerialPort.GetHashCode();
+        hash = hash * 31 + CliPath.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("CliRunnerInfoOnPort (");
+      using (printer.IndentCookie()) {
+        printer.Print("serialPort = "); SerialPort.PrintEx(printer); printer.Println();
+        printer.Print("cliPath = "); CliPath.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: MeadowPluginModel.kt:32</p>
   /// </summary>
   public sealed class DebugServerInfo : IPrintable, IEquatable<DebugServerInfo>
   {
     //fields
     //public fields
-    [NotNull] public string SerialPort {get; private set;}
+    [NotNull] public CliRunnerInfoOnPort RunnerInfo {get; private set;}
     public int DebugPort {get; private set;}
     
     //private fields
     //primary constructor
     public DebugServerInfo(
-      [NotNull] string serialPort,
+      [NotNull] CliRunnerInfoOnPort runnerInfo,
       int debugPort
     )
     {
-      if (serialPort == null) throw new ArgumentNullException("serialPort");
+      if (runnerInfo == null) throw new ArgumentNullException("runnerInfo");
       
-      SerialPort = serialPort;
+      RunnerInfo = runnerInfo;
       DebugPort = debugPort;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string serialPort, out int debugPort)
+    public void Deconstruct([NotNull] out CliRunnerInfoOnPort runnerInfo, out int debugPort)
     {
-      serialPort = SerialPort;
+      runnerInfo = RunnerInfo;
       debugPort = DebugPort;
     }
     //statics
     
     public static CtxReadDelegate<DebugServerInfo> Read = (ctx, reader) => 
     {
-      var serialPort = reader.ReadString();
+      var runnerInfo = CliRunnerInfoOnPort.Read(ctx, reader);
       var debugPort = reader.ReadInt();
-      var _result = new DebugServerInfo(serialPort, debugPort);
+      var _result = new DebugServerInfo(runnerInfo, debugPort);
       return _result;
     };
     
     public static CtxWriteDelegate<DebugServerInfo> Write = (ctx, writer, value) => 
     {
-      writer.Write(value.SerialPort);
+      CliRunnerInfoOnPort.Write(ctx, writer, value.RunnerInfo);
       writer.Write(value.DebugPort);
     };
     
@@ -193,14 +476,14 @@ namespace MeadowPlugin.Model
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return SerialPort == other.SerialPort && DebugPort == other.DebugPort;
+      return Equals(RunnerInfo, other.RunnerInfo) && DebugPort == other.DebugPort;
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
-        hash = hash * 31 + SerialPort.GetHashCode();
+        hash = hash * 31 + RunnerInfo.GetHashCode();
         hash = hash * 31 + DebugPort.GetHashCode();
         return hash;
       }
@@ -210,7 +493,7 @@ namespace MeadowPlugin.Model
     {
       printer.Println("DebugServerInfo (");
       using (printer.IndentCookie()) {
-        printer.Print("serialPort = "); SerialPort.PrintEx(printer); printer.Println();
+        printer.Print("runnerInfo = "); RunnerInfo.PrintEx(printer); printer.Println();
         printer.Print("debugPort = "); DebugPort.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
@@ -226,20 +509,20 @@ namespace MeadowPlugin.Model
   
   
   /// <summary>
-  /// <p>Generated from: MeadowPluginModel.kt:13</p>
+  /// <p>Generated from: MeadowPluginModel.kt:23</p>
   /// </summary>
   public sealed class MeadowDeploymentArgs : JetBrains.Rider.Model.DeploymentArgsBase
   {
     //fields
     //public fields
-    [NotNull] public string SerialPort {get; private set;}
+    [NotNull] public CliRunnerInfoOnPort RunnerInfo {get; private set;}
     [NotNull] public string AppPath {get; private set;}
     public bool Debug {get; private set;}
     
     //private fields
     //primary constructor
     public MeadowDeploymentArgs(
-      [NotNull] string serialPort,
+      [NotNull] CliRunnerInfoOnPort runnerInfo,
       [NotNull] string appPath,
       bool debug,
       [NotNull] JetBrains.Rider.Model.RunnableProjectKind projectKind,
@@ -249,10 +532,10 @@ namespace MeadowPlugin.Model
       projectFilePath
      ) 
     {
-      if (serialPort == null) throw new ArgumentNullException("serialPort");
+      if (runnerInfo == null) throw new ArgumentNullException("runnerInfo");
       if (appPath == null) throw new ArgumentNullException("appPath");
       
-      SerialPort = serialPort;
+      RunnerInfo = runnerInfo;
       AppPath = appPath;
       Debug = debug;
     }
@@ -264,10 +547,10 @@ namespace MeadowPlugin.Model
     {
       var projectKind = JetBrains.Rider.Model.RunnableProjectKind.Read(ctx, reader);
       var projectFilePath = reader.ReadString();
-      var serialPort = reader.ReadString();
+      var runnerInfo = CliRunnerInfoOnPort.Read(ctx, reader);
       var appPath = reader.ReadString();
       var debug = reader.ReadBool();
-      var _result = new MeadowDeploymentArgs(serialPort, appPath, debug, projectKind, projectFilePath);
+      var _result = new MeadowDeploymentArgs(runnerInfo, appPath, debug, projectKind, projectFilePath);
       return _result;
     };
     
@@ -275,7 +558,7 @@ namespace MeadowPlugin.Model
     {
       JetBrains.Rider.Model.RunnableProjectKind.Write(ctx, writer, value.ProjectKind);
       writer.Write(value.ProjectFilePath);
-      writer.Write(value.SerialPort);
+      CliRunnerInfoOnPort.Write(ctx, writer, value.RunnerInfo);
       writer.Write(value.AppPath);
       writer.Write(value.Debug);
     };
@@ -296,14 +579,14 @@ namespace MeadowPlugin.Model
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return SerialPort == other.SerialPort && AppPath == other.AppPath && Debug == other.Debug && Equals(ProjectKind, other.ProjectKind) && ProjectFilePath == other.ProjectFilePath;
+      return Equals(RunnerInfo, other.RunnerInfo) && AppPath == other.AppPath && Debug == other.Debug && Equals(ProjectKind, other.ProjectKind) && ProjectFilePath == other.ProjectFilePath;
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
-        hash = hash * 31 + SerialPort.GetHashCode();
+        hash = hash * 31 + RunnerInfo.GetHashCode();
         hash = hash * 31 + AppPath.GetHashCode();
         hash = hash * 31 + Debug.GetHashCode();
         hash = hash * 31 + ProjectKind.GetHashCode();
@@ -316,7 +599,7 @@ namespace MeadowPlugin.Model
     {
       printer.Println("MeadowDeploymentArgs (");
       using (printer.IndentCookie()) {
-        printer.Print("serialPort = "); SerialPort.PrintEx(printer); printer.Println();
+        printer.Print("runnerInfo = "); RunnerInfo.PrintEx(printer); printer.Println();
         printer.Print("appPath = "); AppPath.PrintEx(printer); printer.Println();
         printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
         printer.Print("projectKind = "); ProjectKind.PrintEx(printer); printer.Println();
@@ -335,7 +618,7 @@ namespace MeadowPlugin.Model
   
   
   /// <summary>
-  /// <p>Generated from: MeadowPluginModel.kt:19</p>
+  /// <p>Generated from: MeadowPluginModel.kt:29</p>
   /// </summary>
   public sealed class MeadowDeploymentResult : JetBrains.Rider.Model.DeploymentResultBase
   {

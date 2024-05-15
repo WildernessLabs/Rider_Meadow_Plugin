@@ -32,14 +32,14 @@ public class MeadowBackendHost
     }
 
 
-    private async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, Unit unit)
+    private async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, CliRunnerInfo runnerInfo)
     {
         try
         {
             const string portPrefix = "Found Meadow: ";
             var ports = new List<string>();
             var errorOutput = new StringBuilder();
-            await _cliExecutor.ExecuteMeadowCommand(["list", "ports"], lifetime,
+            await _cliExecutor.ExecuteMeadowCommand(["list", "ports"], runnerInfo.CliPath, lifetime,
                 output =>
                 {
                     if (output.StartsWith(portPrefix))
@@ -66,14 +66,20 @@ public class MeadowBackendHost
     private Unit StartDebuggingServer(Lifetime lifetime, DebugServerInfo debugServerInfo)
     {
         _cliExecutor.ExecuteMeadowCommandForSerialPort(
-            debugServerInfo.SerialPort,
-            ["debug", "--DebugPort", debugServerInfo.DebugPort.ToString()], _lifetime);
+            debugServerInfo.RunnerInfo.SerialPort,
+            ["debug", "--DebugPort", debugServerInfo.DebugPort.ToString()],
+            debugServerInfo.RunnerInfo.CliPath,
+            _lifetime);
         return Unit.Instance;
     }
 
-    private async Task<Unit> TerminateAsync(Lifetime lifetime, string port)
+    private async Task<Unit> TerminateAsync(Lifetime lifetime, CliRunnerInfoOnPort runnerInfo)
     {
-        await _cliExecutor.ExecuteMeadowCommandForSerialPort(port, ["mono", "disable"], lifetime);
+        await _cliExecutor.ExecuteMeadowCommandForSerialPort(
+            runnerInfo.SerialPort,
+            ["mono", "disable"],
+            runnerInfo.CliPath,
+            lifetime);
         return Unit.Instance;
     }
 }

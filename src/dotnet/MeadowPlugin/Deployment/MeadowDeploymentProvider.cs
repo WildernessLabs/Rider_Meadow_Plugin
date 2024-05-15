@@ -57,13 +57,15 @@ public class MeadowDeploymentProvider(MeadowCliExecutor cliExecutor) : IDeployme
             }
 
             var exitCode = await cliExecutor.ExecuteMeadowCommandForSerialPort(
-                meadowDeploymentArgs.SerialPort,
+                meadowDeploymentArgs.RunnerInfo.SerialPort,
                 [
                     "app",
                     "deploy",
                     "--file",CommandLineUtil.QuoteIfNeeded(meadowDeploymentArgs.AppPath),
                     "--includePdbs", meadowDeploymentArgs.Debug.ToString()
-                ], lifetime,
+                ],
+                meadowDeploymentArgs.RunnerInfo.CliPath,
+                lifetime,
                 deploymentLogger.OnOutputAvailable,
                 deploymentLogger.OnErrorAvailable);
 
@@ -74,11 +76,13 @@ public class MeadowDeploymentProvider(MeadowCliExecutor cliExecutor) : IDeployme
             }
             
             await cliExecutor.ExecuteMeadowCommandForSerialPort(
-                meadowDeploymentArgs.SerialPort,
+                meadowDeploymentArgs.RunnerInfo.SerialPort,
                 [
                     "mono",
                     "enable"
-                ], lifetime,
+                ],
+                meadowDeploymentArgs.RunnerInfo.CliPath,
+                lifetime,
                 deploymentLogger.OnOutputAvailable,
                 deploymentLogger.OnErrorAvailable);
             
