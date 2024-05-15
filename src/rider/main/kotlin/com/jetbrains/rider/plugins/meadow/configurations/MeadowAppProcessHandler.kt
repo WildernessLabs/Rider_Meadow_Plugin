@@ -38,5 +38,5 @@ class MeadowAppProcessHandler(private val meadowDevice: MeadowDevice, private va
 
     override fun detachIsDefault(): Boolean = false
 
-    override fun getProcessInput(): OutputStream? = null //TODO
+    override fun getProcessInput(): OutputStream? = null
 }
