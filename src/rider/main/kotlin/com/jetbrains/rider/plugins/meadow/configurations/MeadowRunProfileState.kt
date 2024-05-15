@@ -18,6 +18,6 @@ class MeadowRunProfileState(private val executable: MeadowExecutable, private va
             throw CantRunException(MeadowBundle.message("meadow.deployment.failed.message"))
         }
 
-        return DefaultExecutionResult(MeadowDummyProcessHandler(executable.device, environment.project))
+        return DefaultExecutionResult(MeadowAppProcessHandler(executable.device, environment.project))
     }
 }

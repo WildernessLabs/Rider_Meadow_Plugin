@@ -28,7 +28,7 @@ public class MeadowBackendHost
         var meadowPluginModel = solution.GetProtocolSolution().GetMeadowPluginModel();
         meadowPluginModel.GetSerialPorts.SetAsync(GetSerialPortsAsync);
         meadowPluginModel.StartDebugServer.Set(StartDebuggingServer);
-        meadowPluginModel.TerminateTasks.Set(TerminateTasks);
+        meadowPluginModel.Terminate.Set(TerminateAsync);
     }
 
 
@@ -71,9 +71,9 @@ public class MeadowBackendHost
         return Unit.Instance;
     }
 
-    private Unit TerminateTasks(Lifetime lifetime, string port)
+    private async Task<Unit> TerminateAsync(Lifetime lifetime, string port)
     {
-        _cliExecutor.StopTaskForSerialPort(port);
+        await _cliExecutor.ExecuteMeadowCommandForSerialPort(port, ["mono", "disable"], lifetime);
         return Unit.Instance;
     }
 }

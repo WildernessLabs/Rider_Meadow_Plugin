@@ -50,15 +50,6 @@ public class MeadowCliExecutor(IShellLocks locks)
         return ExecuteMeadowCommandInternal(command, lifetime, outputConsumer, errorConsumer).Item1;
     }
 
-    public void StopTaskForSerialPort(string serialPort)
-    {
-        lock (serialPort)
-        {
-            _serialPortTaskLifetimes.TryGetValue(serialPort)?.Terminate();
-            _serialPortTaskLifetimes.Remove(serialPort);
-        }
-    }
-
     private Tuple<Task<int>, LifetimeDefinition> ExecuteMeadowCommandInternal(
         string[] command,
         Lifetime lifetime,

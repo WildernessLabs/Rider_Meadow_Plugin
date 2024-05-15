@@ -73,6 +73,15 @@ public class MeadowDeploymentProvider(MeadowCliExecutor cliExecutor) : IDeployme
                 return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
             }
             
+            await cliExecutor.ExecuteMeadowCommandForSerialPort(
+                meadowDeploymentArgs.SerialPort,
+                [
+                    "mono",
+                    "enable"
+                ], lifetime,
+                deploymentLogger.OnOutputAvailable,
+                deploymentLogger.OnErrorAvailable);
+            
             return new MeadowDeploymentResult(DeploymentResultStatus.Success);
         }
         catch (TaskCanceledException)

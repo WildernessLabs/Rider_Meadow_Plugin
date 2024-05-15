@@ -44,33 +44,33 @@ namespace MeadowPlugin.Model
     //public fields
     [NotNull] public IRdEndpoint<Unit, List<string>> GetSerialPorts => _GetSerialPorts;
     [NotNull] public IRdEndpoint<DebugServerInfo, Unit> StartDebugServer => _StartDebugServer;
-    [NotNull] public IRdEndpoint<string, Unit> TerminateTasks => _TerminateTasks;
+    [NotNull] public IRdEndpoint<string, Unit> Terminate => _Terminate;
     
     //private fields
     [NotNull] private readonly RdCall<Unit, List<string>> _GetSerialPorts;
     [NotNull] private readonly RdCall<DebugServerInfo, Unit> _StartDebugServer;
-    [NotNull] private readonly RdCall<string, Unit> _TerminateTasks;
+    [NotNull] private readonly RdCall<string, Unit> _Terminate;
     
     //primary constructor
     private MeadowPluginModel(
       [NotNull] RdCall<Unit, List<string>> getSerialPorts,
       [NotNull] RdCall<DebugServerInfo, Unit> startDebugServer,
-      [NotNull] RdCall<string, Unit> terminateTasks
+      [NotNull] RdCall<string, Unit> terminate
     )
     {
       if (getSerialPorts == null) throw new ArgumentNullException("getSerialPorts");
       if (startDebugServer == null) throw new ArgumentNullException("startDebugServer");
-      if (terminateTasks == null) throw new ArgumentNullException("terminateTasks");
+      if (terminate == null) throw new ArgumentNullException("terminate");
       
       _GetSerialPorts = getSerialPorts;
       _StartDebugServer = startDebugServer;
-      _TerminateTasks = terminateTasks;
+      _Terminate = terminate;
       _GetSerialPorts.Async = true;
       _StartDebugServer.Async = true;
-      _TerminateTasks.Async = true;
+      _Terminate.Async = true;
       BindableChildren.Add(new KeyValuePair<string, object>("getSerialPorts", _GetSerialPorts));
       BindableChildren.Add(new KeyValuePair<string, object>("startDebugServer", _StartDebugServer));
-      BindableChildren.Add(new KeyValuePair<string, object>("terminateTasks", _TerminateTasks));
+      BindableChildren.Add(new KeyValuePair<string, object>("terminate", _Terminate));
     }
     //secondary constructor
     internal MeadowPluginModel (
@@ -86,7 +86,7 @@ namespace MeadowPlugin.Model
     
     public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
     
-    protected override long SerializationHash => 6353470765556207068L;
+    protected override long SerializationHash => -2257001314127068400L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -111,7 +111,7 @@ namespace MeadowPlugin.Model
       using (printer.IndentCookie()) {
         printer.Print("getSerialPorts = "); _GetSerialPorts.PrintEx(printer); printer.Println();
         printer.Print("startDebugServer = "); _StartDebugServer.PrintEx(printer); printer.Println();
-        printer.Print("terminateTasks = "); _TerminateTasks.PrintEx(printer); printer.Println();
+        printer.Print("terminate = "); _Terminate.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }

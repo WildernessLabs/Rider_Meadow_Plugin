@@ -27,7 +27,7 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
     init {
         call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
         call("startDebugServer", DebugServerInfo, PredefinedType.void).async
-        call("terminateTasks", PredefinedType.string, PredefinedType.void).async
+        call("terminate", PredefinedType.string, PredefinedType.void).async
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
         setting(CSharp50Generator.Namespace, "MeadowPlugin.Model")
     }

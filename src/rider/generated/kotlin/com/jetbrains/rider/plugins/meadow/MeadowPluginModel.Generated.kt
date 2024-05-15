@@ -21,7 +21,7 @@ import kotlin.jvm.JvmStatic
 class MeadowPluginModel private constructor(
     private val _getSerialPorts: RdCall<Unit, List<String>>,
     private val _startDebugServer: RdCall<DebugServerInfo, Unit>,
-    private val _terminateTasks: RdCall<String, Unit>
+    private val _terminate: RdCall<String, Unit>
 ) : RdExtBase() {
     //companion
     
@@ -39,7 +39,7 @@ class MeadowPluginModel private constructor(
         
         private val __StringListSerializer = FrameworkMarshallers.String.list()
         
-        const val serializationHash = 6353470765556207068L
+        const val serializationHash = -2257001314127068400L
         
     }
     override val serializersOwner: ISerializersOwner get() = MeadowPluginModel
@@ -48,19 +48,19 @@ class MeadowPluginModel private constructor(
     //fields
     val getSerialPorts: IRdCall<Unit, List<String>> get() = _getSerialPorts
     val startDebugServer: IRdCall<DebugServerInfo, Unit> get() = _startDebugServer
-    val terminateTasks: IRdCall<String, Unit> get() = _terminateTasks
+    val terminate: IRdCall<String, Unit> get() = _terminate
     //methods
     //initializer
     init {
         _getSerialPorts.async = true
         _startDebugServer.async = true
-        _terminateTasks.async = true
+        _terminate.async = true
     }
     
     init {
         bindableChildren.add("getSerialPorts" to _getSerialPorts)
         bindableChildren.add("startDebugServer" to _startDebugServer)
-        bindableChildren.add("terminateTasks" to _terminateTasks)
+        bindableChildren.add("terminate" to _terminate)
     }
     
     //secondary constructor
@@ -79,7 +79,7 @@ class MeadowPluginModel private constructor(
         printer.indent {
             print("getSerialPorts = "); _getSerialPorts.print(printer); println()
             print("startDebugServer = "); _startDebugServer.print(printer); println()
-            print("terminateTasks = "); _terminateTasks.print(printer); println()
+            print("terminate = "); _terminate.print(printer); println()
         }
         printer.print(")")
     }
@@ -88,7 +88,7 @@ class MeadowPluginModel private constructor(
         return MeadowPluginModel(
             _getSerialPorts.deepClonePolymorphic(),
             _startDebugServer.deepClonePolymorphic(),
-            _terminateTasks.deepClonePolymorphic()
+            _terminate.deepClonePolymorphic()
         )
     }
     //contexts

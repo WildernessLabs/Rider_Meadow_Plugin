@@ -8,9 +8,10 @@ import com.jetbrains.rider.plugins.meadow.model.meadowPluginModel
 import com.jetbrains.rider.projectView.solution
 import java.io.OutputStream
 
-class MeadowDummyProcessHandler(private val meadowDevice: MeadowDevice, private val project: Project) : ProcessHandler() {
+class MeadowAppProcessHandler(private val meadowDevice: MeadowDevice, private val project: Project) : ProcessHandler() {
     override fun destroyProcessImpl() {
-        project.solution.meadowPluginModel.terminateTasks.start(project.lifetime, meadowDevice.port)
+        project.solution.meadowPluginModel.terminate.start(project.lifetime, meadowDevice.port)
+        notifyProcessTerminated(0)
     }
 
     override fun detachProcessImpl() {
@@ -19,5 +20,5 @@ class MeadowDummyProcessHandler(private val meadowDevice: MeadowDevice, private 
 
     override fun detachIsDefault(): Boolean = false
 
-    override fun getProcessInput(): OutputStream? = null
+    override fun getProcessInput(): OutputStream? = null //TODO
 }
