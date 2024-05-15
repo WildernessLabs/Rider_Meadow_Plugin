@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <JetReferencesPrivate>false</JetReferencesPrivate>
+    </PropertyGroup>
+
+    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')" />
+    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')" />
+    <ItemGroup>
+        <PackageReference Update="JetBrains.Rider.RdBackend.Common" PrivateAssets="all"/>
+        <PackageReference Update="JetBrains.Rider.Rider.Backend" PrivateAssets="all"/>
+    </ItemGroup>
+</Project>

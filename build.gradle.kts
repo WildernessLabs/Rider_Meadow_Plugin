@@ -1,49 +1,194 @@
 import com.jetbrains.plugin.structure.base.utils.isFile
-import org.jetbrains.changelog.markdownToHTML
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.changelog.exceptions.MissingVersionException
 import org.jetbrains.intellij.platform.gradle.Constants
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.io.path.absolute
 import kotlin.io.path.isDirectory
 
-fun properties(key: String) = providers.gradleProperty(key)
-fun environment(key: String) = providers.environmentVariable(key)
-
 plugins {
-    alias(libs.plugins.kotlin) // Kotlin support
-    alias(libs.plugins.gradleIntelliJPlatformPlugin) // Gradle IntelliJ Platform Plugin
-    alias(libs.plugins.changelog) // Gradle Changelog Plugin
-    alias(libs.plugins.qodana) // Gradle Qodana Plugin
-    alias(libs.plugins.rdgen)
+    alias(libs.plugins.changelog)
+    alias(libs.plugins.gradleIntelliJPlatform)
+    alias(libs.plugins.gradleJvmWrapper)
+    alias(libs.plugins.kotlinJvm)
+    id("java")
 }
 
-group = properties("pluginGroup").get()
-version = properties("pluginVersion").get()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+        jetbrainsRuntime()
+    }
+}
+
+val pluginVersion: String by project
+val riderSdkVersion: String by project
+val untilBuildVersion: String by project
+val buildConfiguration: String by project
+val dotNetPluginId: String by project
+
+val dotNetSrcDir = File(projectDir, "src/dotnet")
+
+version = pluginVersion
+
+val riderSdkPath by lazy {
+    val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
+    if (!path.isDirectory()) error("$path does not exist or not a directory")
+
+    println("Rider SDK path: $path")
+    return@lazy path
+}
+
+dependencies {
+    intellijPlatform {
+        rider(riderSdkVersion)
+        jetbrainsRuntime()
+        instrumentationTools()
+        bundledLibrary("lib/testFramework.jar")
+    }
+    testImplementation(libs.openTest4J)
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+sourceSets {
+    main {
+        kotlin.srcDir("src/rider/generated/kotlin")
+        kotlin.srcDir("src/rider/main/kotlin")
+        resources.srcDir("src/rider/main/resources")
+    }
+}
+
+tasks {
+    val generateDotNetSdkProperties by registering {
+        val dotNetSdkGeneratedPropsFile = File(projectDir, "build/DotNetSdkPath.Generated.props")
+        doLast {
+            dotNetSdkGeneratedPropsFile.writeTextIfChanged("""<Project>
+  <PropertyGroup>
+    <DotNetSdkPath>$riderSdkPath</DotNetSdkPath>
+  </PropertyGroup>
+</Project>
+""")
+        }
+    }
+
+    val generateNuGetConfig by registering {
+        val nuGetConfigFile = File(dotNetSrcDir, "nuget.config")
+        doLast {
+            nuGetConfigFile.writeTextIfChanged("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <!-- Auto-generated from 'generateNuGetConfig' task of old.build_gradle.kts -->
+            <!-- Run `gradlew :prepare` to regenerate -->
+            <configuration>
+                <packageSources>
+                    <add key="rider-sdk" value="$riderSdkPath" />
+                </packageSources>
+            </configuration>
+            """.trimIndent())
+        }
+    }
+
+    val rdGen = ":protocol:rdgen"
+
+    register("prepare") {
+        dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
+    }
+
+    val compileDotNet by registering {
+        dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
+        doLast {
+            exec {
+                executable("dotnet")
+                args("build", "-c", buildConfiguration)
+            }
+        }
+    }
+
+    withType<KotlinCompile> {
+        dependsOn(rdGen)
+    }
+
+    buildPlugin {
+        dependsOn(compileDotNet)
+    }
+
+    patchPluginXml {
+        untilBuild.set(untilBuildVersion)
+        val latestChangelog = try {
+            changelog.getUnreleased()
+        } catch (_: MissingVersionException) {
+            changelog.getLatest()
+        }
+        changeNotes.set(provider {
+            changelog.renderItem(
+                latestChangelog
+                    .withHeader(false)
+                    .withEmptySections(false),
+                org.jetbrains.changelog.Changelog.OutputType.HTML
+            )
+        })
+    }
+
+    withType<PrepareSandboxTask> {
+        dependsOn(compileDotNet)
+
+        val outputFolder = file("$dotNetSrcDir/$dotNetPluginId/bin/$buildConfiguration")
+        val pluginFiles = listOf(
+            "$outputFolder/${dotNetPluginId}.dll",
+            "$outputFolder/${dotNetPluginId}.pdb"
+        )
+
+        val meadowCliOutputFolder = file("$projectDir/../Meadow.CLI/Meadow.CLI/bin/$buildConfiguration/publish")
+
+        from(meadowCliOutputFolder) {
+            into("${rootProject.name}/Meadow.CLI")
+        }
+
+        from(pluginFiles) {
+            into("${rootProject.name}/dotnet")
+        }
+
+        doLast {
+            for (f in pluginFiles) {
+                val file = file(f)
+                if (!file.exists()) throw RuntimeException("File \"$file\" does not exist.")
+            }
+        }
+    }
+
+    runIde {
+        jvmArgs("-Xmx1500m")
+    }
+
+    test {
+        useTestNG()
+        testLogging {
+            showStandardStreams = true
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+        environment["LOCAL_ENV_RUN"] = "true"
+    }
+}
 
 val riderModel: Configuration by configurations.creating {
     isCanBeConsumed = true
     isCanBeResolved = false
 }
 
-// Configure project's dependencies
-repositories {
-    mavenCentral()
-    maven { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
-    intellijPlatform {
-        defaultRepositories()
-    }
-}
-
-
-dependencies {
-    intellijPlatform {
-        rider(properties("platformVersion"))
-        instrumentationTools()
-    }
-}
-
 artifacts {
     add(riderModel.name, provider {
-        val sdkRoot = intellijPlatform.platformPath
-        sdkRoot.resolve("lib/rd/rider-model.jar").also {
+        intellijPlatform.platformPath.resolve("lib/rd/rider-model.jar").also {
             check(it.isFile) {
                 "rider-model.jar is not found at $riderModel"
             }
@@ -53,27 +198,6 @@ artifacts {
     }
 }
 
-// Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
-dependencies {
-//    implementation(libs.annotations)
-}
-
-intellijPlatform {
-    pluginConfiguration {
-        name = properties("pluginName")
-    }
-    buildSearchableOptions = false
-}
-
-// Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-changelog {
-    groups.empty()
-    repositoryUrl = properties("pluginRepositoryUrl")
-}
-
-val dotNetSdkGeneratedPropsFile = File(projectDir, "build/DotNetSdkPath.Generated.props")
-val nuGetConfigFile = File(projectDir, "nuget.config")
-
 fun File.writeTextIfChanged(content: String) {
     val bytes = content.toByteArray()
 
@@ -81,161 +205,5 @@ fun File.writeTextIfChanged(content: String) {
         println("Writing $path")
         parentFile.mkdirs()
         writeBytes(bytes)
-    }
-}
-
-tasks {
-    wrapper {
-        gradleVersion = properties("gradleVersion").get()
-    }
-
-    configure<com.jetbrains.rd.generator.gradle.RdGenExtension> {
-        val modelDir = projectDir.resolve("protocol/src/main/kotlin/model")
-        val pluginSourcePath = projectDir.resolve("src")
-
-        verbose = true
-        classpath({
-            intellijPlatform.platformPath.resolve("lib/rd/rider-model.jar").toRealPath()
-        })
-        sources(modelDir)
-        hashFolder = "$rootDir/build/rdgen/rider"
-        packages = "model.meadowPlugin"
-
-        val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/meadow/generated")
-        val csPluginOutput = pluginSourcePath.resolve("dotnet/Meadow/Generated")
-        generator {
-            language = "kotlin"
-            transform = "asis"
-            root = "com.jetbrains.rider.model.nova.ide.IdeRoot"
-            directory = ktPluginOutput.canonicalPath
-        }
-        generator {
-            language = "csharp"
-            transform = "reversed"
-            root = "com.jetbrains.rider.model.nova.ide.IdeRoot"
-            directory = csPluginOutput.canonicalPath
-        }
-    }
-
-    val dotnetBuildConfiguration = properties("dotnetBuildConfiguration").get()
-
-    val riderSdkPath by lazy {
-        val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins")
-        if (!path.isDirectory()) error("$path does not exist or not a directory")
-
-        println("Rider SDK path: $path")
-        return@lazy path
-    }
-
-
-    val generateDotNetSdkProperties by registering {
-        doLast {
-            dotNetSdkGeneratedPropsFile.writeTextIfChanged(
-                """<Project>
-  <PropertyGroup>
-    <DotNetSdkPath>$riderSdkPath</DotNetSdkPath>
-  </PropertyGroup>
-</Project>
-"""
-            )
-        }
-    }
-
-    val generateNuGetConfig by registering {
-        doLast {
-            nuGetConfigFile.writeTextIfChanged(
-                """<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-  <packageSources>
-    <add key="rider-sdk" value="$riderSdkPath" />
-  </packageSources>
-</configuration>
-"""
-            )
-        }
-    }
-
-    val buildDotnet by registering {
-        dependsOn(generateDotNetSdkProperties, generateNuGetConfig)
-        doLast {
-            exec {
-                executable("dotnet")
-                args("build", "-c", dotnetBuildConfiguration)
-            }
-        }
-    }
-
-    buildPlugin {
-        dependsOn(buildDotnet)
-    }
-
-    register("prepare") {
-        dependsOn(rdgen, generateDotNetSdkProperties, generateNuGetConfig)
-    }
-
-    withType<PrepareSandboxTask> {
-        dependsOn(buildDotnet)
-
-        val outputFolder = file("$projectDir/src/dotnet/Meadow/bin/$dotnetBuildConfiguration")
-
-        val meadowCliOutputFolder = file("$projectDir/../Meadow.CLI/Meadow.CLI/bin/$dotnetBuildConfiguration/publish")
-
-        from(meadowCliOutputFolder) {
-            into("${rootProject.name}/Meadow.CLI")
-        }
-
-        val fileNames = listOf(
-            "MeadowPlugin.dll",
-            "MeadowPlugin.pdb",
-            "MeadowPlugin.deps.json"
-        )
-
-        for (fileName in fileNames) {
-            val file = File(outputFolder, fileName)
-            if (!file.exists()) {
-                throw IllegalStateException("File $file does not exist")
-            }
-
-            from(file) {
-                into("${rootProject.name}/dotnet")
-            }
-        }
-    }
-
-    patchPluginXml {
-        version = properties("pluginVersion")
-        sinceBuild = properties("pluginSinceBuild")
-        untilBuild = properties("pluginUntilBuild")
-
-        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        pluginDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
-            val start = "<!-- Plugin description -->"
-            val end = "<!-- Plugin description end -->"
-
-            with(it.lines()) {
-                if (!containsAll(listOf(start, end))) {
-                    throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
-                }
-                subList(indexOf(start) + 1, indexOf(end)).joinToString("\n").let(::markdownToHTML)
-            }
-        }
-    }
-
-    signPlugin {
-        certificateChain = environment("CERTIFICATE_CHAIN")
-        privateKey = environment("PRIVATE_KEY")
-        password = environment("PRIVATE_KEY_PASSWORD")
-    }
-
-    publishPlugin {
-        dependsOn("patchChangelog")
-        token = environment("PUBLISH_TOKEN")
-        // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
-        // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
-        // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        channels = properties("pluginVersion").map {
-            listOf(
-                it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" })
-        }
     }
 }
