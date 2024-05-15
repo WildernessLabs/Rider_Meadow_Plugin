@@ -31,7 +31,7 @@ using JetBrains.Rd.Text;
 // ReSharper disable RedundantOverflowCheckingContext
 
 
-namespace Meadow.Generated
+namespace MeadowPlugin.Model
 {
   
   

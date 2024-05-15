@@ -3,9 +3,9 @@ package com.jetbrains.rider.plugins.meadow.devices
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.lifetime
-import com.jetbrains.rider.meadow.generated.meadowPluginModel
 import com.jetbrains.rider.plugins.meadow.icons.Icons
 import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
+import com.jetbrains.rider.plugins.meadow.model.meadowPluginModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.devices.CompatibilityProblem
 import com.jetbrains.rider.run.devices.Device

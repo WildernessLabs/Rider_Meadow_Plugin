@@ -1,5 +1,5 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE","EXPERIMENTAL_UNSIGNED_LITERALS","PackageDirectoryMismatch","UnusedImport","unused","LocalVariableName","CanBeVal","PropertyName","EnumEntryName","ClassName","ObjectPropertyName","UnnecessaryVariable","SpellCheckingInspection")
-package com.jetbrains.rider.meadow.generated
+package com.jetbrains.rider.plugins.meadow.model
 
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.framework.base.*
@@ -29,9 +29,9 @@ class MeadowPluginModel private constructor(
         
         override fun registerSerializersCore(serializers: ISerializers)  {
             val classLoader = javaClass.classLoader
-            serializers.register(LazyCompanionMarshaller(RdId(-1686321114733927496), classLoader, "com.jetbrains.rider.meadow.generated.MeadowDeploymentArgs"))
-            serializers.register(LazyCompanionMarshaller(RdId(2758887227611271224), classLoader, "com.jetbrains.rider.meadow.generated.MeadowDeploymentResult"))
-            serializers.register(LazyCompanionMarshaller(RdId(7163900993924547761), classLoader, "com.jetbrains.rider.meadow.generated.DebugServerInfo"))
+            serializers.register(LazyCompanionMarshaller(RdId(-1686321114733927496), classLoader, "com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentArgs"))
+            serializers.register(LazyCompanionMarshaller(RdId(2758887227611271224), classLoader, "com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentResult"))
+            serializers.register(LazyCompanionMarshaller(RdId(7163900993924547761), classLoader, "com.jetbrains.rider.plugins.meadow.model.DebugServerInfo"))
         }
         
         

@@ -9,8 +9,8 @@ using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using Meadow.Generated;
 using MeadowPlugin.Deployment;
+using MeadowPlugin.Model;
 
 namespace MeadowPlugin;
 

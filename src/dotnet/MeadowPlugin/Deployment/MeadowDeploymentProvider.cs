@@ -10,7 +10,7 @@ using JetBrains.Rider.Model;
 using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using Meadow.Generated;
+using MeadowPlugin.Model;
 
 namespace MeadowPlugin.Deployment;
 

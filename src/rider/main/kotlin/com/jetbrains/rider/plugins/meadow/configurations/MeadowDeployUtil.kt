@@ -4,8 +4,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.jetbrains.rdclient.util.idea.pumpMessages
 import com.jetbrains.rider.deploy.RiderDeploymentHost
-import com.jetbrains.rider.meadow.generated.MeadowDeploymentArgs
-import com.jetbrains.rider.meadow.generated.MeadowDeploymentResult
+import com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentArgs
+import com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async

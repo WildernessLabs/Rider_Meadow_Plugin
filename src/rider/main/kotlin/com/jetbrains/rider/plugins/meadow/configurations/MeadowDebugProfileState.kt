@@ -3,12 +3,12 @@ package com.jetbrains.rider.plugins.meadow.configurations
 import com.intellij.execution.CantRunException
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.meadow.generated.DebugServerInfo
-import com.jetbrains.rider.meadow.generated.meadowPluginModel
 import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
 import com.jetbrains.rider.model.DeploymentResultStatus
 import com.jetbrains.rider.model.debuggerWorker.DebuggerStartInfoBase
 import com.jetbrains.rider.model.debuggerWorker.MonoAttachStartInfo
+import com.jetbrains.rider.plugins.meadow.model.DebugServerInfo
+import com.jetbrains.rider.plugins.meadow.model.meadowPluginModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.AttachDebugProfileStateBase
 import com.jetbrains.rider.run.ConsoleKind
