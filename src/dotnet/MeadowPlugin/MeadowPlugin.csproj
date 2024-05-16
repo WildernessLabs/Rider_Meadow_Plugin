@@ -3,10 +3,20 @@
         <JetReferencesPrivate>false</JetReferencesPrivate>
     </PropertyGroup>
 
-    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')" />
-    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')" />
+    <ItemGroup>
+        <PackageReference Include="System.Management" Version="5.0.0"/>
+        <PackageReference Include="System.CodeDom" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.NETCore.Platforms" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    </ItemGroup>
+
+    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')"/>
+    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')"/>
     <ItemGroup>
         <PackageReference Update="JetBrains.Rider.RdBackend.Common" PrivateAssets="all"/>
         <PackageReference Update="JetBrains.Rider.Rider.Backend" PrivateAssets="all"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.6.0.0.csproj"/>
     </ItemGroup>
 </Project>

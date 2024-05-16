@@ -45,7 +45,7 @@ class MeadowDebugProfileState(private val executable: MeadowExecutable, private 
         val debugPort = getNextDebuggingPort()
         environment.project.solution.meadowPluginModel.startDebugServer.startSuspending(
             lifetime,
-            DebugServerInfo(createRunnerInfoOnPort(executable.device), debugPort)
+            DebugServerInfo(executable.device.toModel(), debugPort)
         )
 
         return MonoAttachStartInfo("localhost", debugPort, false)

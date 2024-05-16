@@ -21,7 +21,7 @@ private val MONO_RUNTIME_DISABLE_TIMEOUT = Duration.ofSeconds(10)
 class MeadowAppProcessHandler(private val meadowDevice: MeadowDevice, private val project: Project) : ProcessHandler() {
     override fun destroyProcessImpl() {
         val job = project.lifetime.launch(Dispatchers.Default) {
-            project.solution.meadowPluginModel.terminate.startSuspending(createRunnerInfoOnPort(meadowDevice))
+            project.solution.meadowPluginModel.terminate.startSuspending(meadowDevice.toModel())
         }
 
         pumpMessages(MONO_RUNTIME_DISABLE_TIMEOUT) { job.isCompleted }

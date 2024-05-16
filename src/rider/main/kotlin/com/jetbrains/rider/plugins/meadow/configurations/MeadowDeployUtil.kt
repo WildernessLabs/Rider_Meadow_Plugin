@@ -4,6 +4,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.jetbrains.rdclient.util.idea.pumpMessages
 import com.jetbrains.rider.deploy.RiderDeploymentHost
+import com.jetbrains.rider.plugins.meadow.devices.MeadowDevice
+import com.jetbrains.rider.plugins.meadow.model.DeviceModel
 import com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentArgs
 import com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentResult
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +26,7 @@ fun deploySync(executable: MeadowExecutable, debug: Boolean, project: Project) :
 suspend fun deploy(executable: MeadowExecutable, debug: Boolean, project: Project): MeadowDeploymentResult {
     return RiderDeploymentHost.getInstance(project).deployWithProgress(
         MeadowDeploymentArgs(
-            createRunnerInfoOnPort(executable.device),
+            executable.device.toModel(),
             executable.appPath.absolutePath,
             debug,
             executable.runnableProject.kind,
@@ -32,3 +34,6 @@ suspend fun deploy(executable: MeadowExecutable, debug: Boolean, project: Projec
     )
 }
 
+fun MeadowDevice.toModel() : DeviceModel {
+    return DeviceModel(port)
+}

@@ -35,6 +35,7 @@ val buildConfiguration: String by project
 val dotNetPluginId: String by project
 
 val dotNetSrcDir = File(projectDir, "src/dotnet")
+val dotNetProjectPath = File("$dotNetSrcDir/$dotNetPluginId/$dotNetPluginId.csproj")
 
 version = pluginVersion
 
@@ -109,12 +110,12 @@ tasks {
         dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
     }
 
-    val compileDotNet by registering {
+    val publishDotnet by registering {
         dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
         doLast {
             exec {
                 executable("dotnet")
-                args("build", "-c", buildConfiguration)
+                args("publish", "-c", buildConfiguration, dotNetProjectPath)
             }
         }
     }
@@ -124,7 +125,7 @@ tasks {
     }
 
     buildPlugin {
-        dependsOn(compileDotNet)
+        dependsOn(publishDotnet)
     }
 
     patchPluginXml {
@@ -145,29 +146,12 @@ tasks {
     }
 
     withType<PrepareSandboxTask> {
-        dependsOn(compileDotNet)
+        dependsOn(publishDotnet)
 
-        val outputFolder = file("$dotNetSrcDir/$dotNetPluginId/bin/$buildConfiguration")
-        val pluginFiles = listOf(
-            "$outputFolder/${dotNetPluginId}.dll",
-            "$outputFolder/${dotNetPluginId}.pdb"
-        )
+        val outputFolder = file("$dotNetSrcDir/$dotNetPluginId/bin/$buildConfiguration/publish")
 
-        val meadowCliOutputFolder = file("$projectDir/../Meadow.CLI/Meadow.CLI/bin/$buildConfiguration/publish")
-
-        from(meadowCliOutputFolder) {
-            into("${rootProject.name}/Meadow.CLI")
-        }
-
-        from(pluginFiles) {
+        from(outputFolder) {
             into("${rootProject.name}/dotnet")
-        }
-
-        doLast {
-            for (f in pluginFiles) {
-                val file = file(f)
-                if (!file.exists()) throw RuntimeException("File \"$file\" does not exist.")
-            }
         }
     }
 

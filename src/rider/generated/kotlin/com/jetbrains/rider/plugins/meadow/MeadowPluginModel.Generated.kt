@@ -19,9 +19,9 @@ import kotlin.jvm.JvmStatic
  * #### Generated from [MeadowPluginModel.kt:11]
  */
 class MeadowPluginModel private constructor(
-    private val _getSerialPorts: RdCall<CliRunnerInfo, List<String>>,
+    private val _getSerialPorts: RdCall<Unit, List<String>>,
     private val _startDebugServer: RdCall<DebugServerInfo, Unit>,
-    private val _terminate: RdCall<CliRunnerInfoOnPort, Unit>
+    private val _terminate: RdCall<DeviceModel, Unit>
 ) : RdExtBase() {
     //companion
     
@@ -29,12 +29,10 @@ class MeadowPluginModel private constructor(
         
         override fun registerSerializersCore(serializers: ISerializers)  {
             val classLoader = javaClass.classLoader
-            serializers.register(LazyCompanionMarshaller(RdId(3030399540646525931), classLoader, "com.jetbrains.rider.plugins.meadow.model.CliRunnerInfo"))
-            serializers.register(LazyCompanionMarshaller(RdId(-8282157804764963125), classLoader, "com.jetbrains.rider.plugins.meadow.model.CliRunnerInfoOnPort"))
+            serializers.register(LazyCompanionMarshaller(RdId(541269807180439648), classLoader, "com.jetbrains.rider.plugins.meadow.model.DeviceModel"))
             serializers.register(LazyCompanionMarshaller(RdId(-1686321114733927496), classLoader, "com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentArgs"))
             serializers.register(LazyCompanionMarshaller(RdId(2758887227611271224), classLoader, "com.jetbrains.rider.plugins.meadow.model.MeadowDeploymentResult"))
             serializers.register(LazyCompanionMarshaller(RdId(7163900993924547761), classLoader, "com.jetbrains.rider.plugins.meadow.model.DebugServerInfo"))
-            serializers.register(LazyCompanionMarshaller(RdId(-1647358313454331833), classLoader, "com.jetbrains.rider.plugins.meadow.model.CliRunnerInfoBase_Unknown"))
         }
         
         
@@ -42,16 +40,16 @@ class MeadowPluginModel private constructor(
         
         private val __StringListSerializer = FrameworkMarshallers.String.list()
         
-        const val serializationHash = -1141783146362402166L
+        const val serializationHash = -4979951659644148378L
         
     }
     override val serializersOwner: ISerializersOwner get() = MeadowPluginModel
     override val serializationHash: Long get() = MeadowPluginModel.serializationHash
     
     //fields
-    val getSerialPorts: IRdCall<CliRunnerInfo, List<String>> get() = _getSerialPorts
+    val getSerialPorts: IRdCall<Unit, List<String>> get() = _getSerialPorts
     val startDebugServer: IRdCall<DebugServerInfo, Unit> get() = _startDebugServer
-    val terminate: IRdCall<CliRunnerInfoOnPort, Unit> get() = _terminate
+    val terminate: IRdCall<DeviceModel, Unit> get() = _terminate
     //methods
     //initializer
     init {
@@ -69,9 +67,9 @@ class MeadowPluginModel private constructor(
     //secondary constructor
     internal constructor(
     ) : this(
-        RdCall<CliRunnerInfo, List<String>>(CliRunnerInfo, __StringListSerializer),
+        RdCall<Unit, List<String>>(FrameworkMarshallers.Void, __StringListSerializer),
         RdCall<DebugServerInfo, Unit>(DebugServerInfo, FrameworkMarshallers.Void),
-        RdCall<CliRunnerInfoOnPort, Unit>(CliRunnerInfoOnPort, FrameworkMarshallers.Void)
+        RdCall<DeviceModel, Unit>(DeviceModel, FrameworkMarshallers.Void)
     )
     
     //equals trait
@@ -103,236 +101,10 @@ val com.jetbrains.rd.ide.model.Solution.meadowPluginModel get() = getOrCreateExt
 
 
 /**
- * #### Generated from [MeadowPluginModel.kt:17]
- */
-class CliRunnerInfo (
-    cliPath: String
-) : CliRunnerInfoBase (
-    cliPath
-) {
-    //companion
-    
-    companion object : IMarshaller<CliRunnerInfo> {
-        override val _type: KClass<CliRunnerInfo> = CliRunnerInfo::class
-        override val id: RdId get() = RdId(3030399540646525931)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): CliRunnerInfo  {
-            val cliPath = buffer.readString()
-            return CliRunnerInfo(cliPath)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CliRunnerInfo)  {
-            buffer.writeString(value.cliPath)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as CliRunnerInfo
-        
-        if (cliPath != other.cliPath) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + cliPath.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("CliRunnerInfo (")
-        printer.indent {
-            print("cliPath = "); cliPath.print(printer); println()
-        }
-        printer.print(")")
-    }
-    
-    override fun toString() = PrettyPrinter().singleLine().also { print(it) }.toString()
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [MeadowPluginModel.kt:13]
- */
-abstract class CliRunnerInfoBase (
-    val cliPath: String
-) : IPrintable {
-    //companion
-    
-    companion object : IAbstractDeclaration<CliRunnerInfoBase> {
-        override fun readUnknownInstance(ctx: SerializationCtx, buffer: AbstractBuffer, unknownId: RdId, size: Int): CliRunnerInfoBase  {
-            val objectStartPosition = buffer.position
-            val cliPath = buffer.readString()
-            val unknownBytes = ByteArray(objectStartPosition + size - buffer.position)
-            buffer.readByteArrayRaw(unknownBytes)
-            return CliRunnerInfoBase_Unknown(cliPath, unknownId, unknownBytes)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    //hash code trait
-    //pretty print
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-class CliRunnerInfoBase_Unknown (
-    cliPath: String,
-    override val unknownId: RdId,
-    val unknownBytes: ByteArray
-) : CliRunnerInfoBase (
-    cliPath
-), IUnknownInstance {
-    //companion
-    
-    companion object : IMarshaller<CliRunnerInfoBase_Unknown> {
-        override val _type: KClass<CliRunnerInfoBase_Unknown> = CliRunnerInfoBase_Unknown::class
-        override val id: RdId get() = RdId(-1647358313454331833)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): CliRunnerInfoBase_Unknown  {
-            throw NotImplementedError("Unknown instances should not be read via serializer")
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CliRunnerInfoBase_Unknown)  {
-            buffer.writeString(value.cliPath)
-            buffer.writeByteArrayRaw(value.unknownBytes)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as CliRunnerInfoBase_Unknown
-        
-        if (cliPath != other.cliPath) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + cliPath.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("CliRunnerInfoBase_Unknown (")
-        printer.indent {
-            print("cliPath = "); cliPath.print(printer); println()
-        }
-        printer.print(")")
-    }
-    
-    override fun toString() = PrettyPrinter().singleLine().also { print(it) }.toString()
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [MeadowPluginModel.kt:19]
- */
-class CliRunnerInfoOnPort (
-    val serialPort: String,
-    cliPath: String
-) : CliRunnerInfoBase (
-    cliPath
-) {
-    //companion
-    
-    companion object : IMarshaller<CliRunnerInfoOnPort> {
-        override val _type: KClass<CliRunnerInfoOnPort> = CliRunnerInfoOnPort::class
-        override val id: RdId get() = RdId(-8282157804764963125)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): CliRunnerInfoOnPort  {
-            val cliPath = buffer.readString()
-            val serialPort = buffer.readString()
-            return CliRunnerInfoOnPort(serialPort, cliPath)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CliRunnerInfoOnPort)  {
-            buffer.writeString(value.cliPath)
-            buffer.writeString(value.serialPort)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as CliRunnerInfoOnPort
-        
-        if (serialPort != other.serialPort) return false
-        if (cliPath != other.cliPath) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + serialPort.hashCode()
-        __r = __r*31 + cliPath.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("CliRunnerInfoOnPort (")
-        printer.indent {
-            print("serialPort = "); serialPort.print(printer); println()
-            print("cliPath = "); cliPath.print(printer); println()
-        }
-        printer.print(")")
-    }
-    
-    override fun toString() = PrettyPrinter().singleLine().also { print(it) }.toString()
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [MeadowPluginModel.kt:32]
+ * #### Generated from [MeadowPluginModel.kt:26]
  */
 data class DebugServerInfo (
-    val runnerInfo: CliRunnerInfoOnPort,
+    val device: DeviceModel,
     val debugPort: Int
 ) : IPrintable {
     //companion
@@ -343,13 +115,13 @@ data class DebugServerInfo (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DebugServerInfo  {
-            val runnerInfo = CliRunnerInfoOnPort.read(ctx, buffer)
+            val device = DeviceModel.read(ctx, buffer)
             val debugPort = buffer.readInt()
-            return DebugServerInfo(runnerInfo, debugPort)
+            return DebugServerInfo(device, debugPort)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DebugServerInfo)  {
-            CliRunnerInfoOnPort.write(ctx, buffer, value.runnerInfo)
+            DeviceModel.write(ctx, buffer, value.device)
             buffer.writeInt(value.debugPort)
         }
         
@@ -366,7 +138,7 @@ data class DebugServerInfo (
         
         other as DebugServerInfo
         
-        if (runnerInfo != other.runnerInfo) return false
+        if (device != other.device) return false
         if (debugPort != other.debugPort) return false
         
         return true
@@ -374,7 +146,7 @@ data class DebugServerInfo (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
-        __r = __r*31 + runnerInfo.hashCode()
+        __r = __r*31 + device.hashCode()
         __r = __r*31 + debugPort.hashCode()
         return __r
     }
@@ -382,7 +154,7 @@ data class DebugServerInfo (
     override fun print(printer: PrettyPrinter)  {
         printer.println("DebugServerInfo (")
         printer.indent {
-            print("runnerInfo = "); runnerInfo.print(printer); println()
+            print("device = "); device.print(printer); println()
             print("debugPort = "); debugPort.print(printer); println()
         }
         printer.print(")")
@@ -394,10 +166,69 @@ data class DebugServerInfo (
 
 
 /**
- * #### Generated from [MeadowPluginModel.kt:23]
+ * #### Generated from [MeadowPluginModel.kt:13]
+ */
+data class DeviceModel (
+    val serialPort: String
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<DeviceModel> {
+        override val _type: KClass<DeviceModel> = DeviceModel::class
+        override val id: RdId get() = RdId(541269807180439648)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DeviceModel  {
+            val serialPort = buffer.readString()
+            return DeviceModel(serialPort)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DeviceModel)  {
+            buffer.writeString(value.serialPort)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as DeviceModel
+        
+        if (serialPort != other.serialPort) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + serialPort.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("DeviceModel (")
+        printer.indent {
+            print("serialPort = "); serialPort.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [MeadowPluginModel.kt:17]
  */
 class MeadowDeploymentArgs (
-    val runnerInfo: CliRunnerInfoOnPort,
+    val device: DeviceModel,
     val appPath: String,
     val debug: Boolean,
     projectKind: com.jetbrains.rider.model.RunnableProjectKind,
@@ -416,16 +247,16 @@ class MeadowDeploymentArgs (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MeadowDeploymentArgs  {
             val projectKind = com.jetbrains.rider.model.RunnableProjectKind.read(ctx, buffer)
             val projectFilePath = buffer.readString()
-            val runnerInfo = CliRunnerInfoOnPort.read(ctx, buffer)
+            val device = DeviceModel.read(ctx, buffer)
             val appPath = buffer.readString()
             val debug = buffer.readBool()
-            return MeadowDeploymentArgs(runnerInfo, appPath, debug, projectKind, projectFilePath)
+            return MeadowDeploymentArgs(device, appPath, debug, projectKind, projectFilePath)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MeadowDeploymentArgs)  {
             com.jetbrains.rider.model.RunnableProjectKind.write(ctx, buffer, value.projectKind)
             buffer.writeString(value.projectFilePath)
-            CliRunnerInfoOnPort.write(ctx, buffer, value.runnerInfo)
+            DeviceModel.write(ctx, buffer, value.device)
             buffer.writeString(value.appPath)
             buffer.writeBool(value.debug)
         }
@@ -443,7 +274,7 @@ class MeadowDeploymentArgs (
         
         other as MeadowDeploymentArgs
         
-        if (runnerInfo != other.runnerInfo) return false
+        if (device != other.device) return false
         if (appPath != other.appPath) return false
         if (debug != other.debug) return false
         if (projectKind != other.projectKind) return false
@@ -454,7 +285,7 @@ class MeadowDeploymentArgs (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
-        __r = __r*31 + runnerInfo.hashCode()
+        __r = __r*31 + device.hashCode()
         __r = __r*31 + appPath.hashCode()
         __r = __r*31 + debug.hashCode()
         __r = __r*31 + projectKind.hashCode()
@@ -465,7 +296,7 @@ class MeadowDeploymentArgs (
     override fun print(printer: PrettyPrinter)  {
         printer.println("MeadowDeploymentArgs (")
         printer.indent {
-            print("runnerInfo = "); runnerInfo.print(printer); println()
+            print("device = "); device.print(printer); println()
             print("appPath = "); appPath.print(printer); println()
             print("debug = "); debug.print(printer); println()
             print("projectKind = "); projectKind.print(printer); println()
@@ -482,7 +313,7 @@ class MeadowDeploymentArgs (
 
 
 /**
- * #### Generated from [MeadowPluginModel.kt:29]
+ * #### Generated from [MeadowPluginModel.kt:23]
  */
 class MeadowDeploymentResult (
     status: com.jetbrains.rider.model.DeploymentResultStatus

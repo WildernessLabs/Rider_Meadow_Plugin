@@ -3,7 +3,6 @@ package com.jetbrains.rider.plugins.meadow.devices
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.lifetime
-import com.jetbrains.rider.plugins.meadow.configurations.createRunnerInfo
 import com.jetbrains.rider.plugins.meadow.icons.Icons
 import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
 import com.jetbrains.rider.plugins.meadow.model.meadowPluginModel
@@ -29,7 +28,7 @@ class MeadowDevicesProvider(private val project: Project) : DevicesProvider {
     override fun getDeviceKinds(): List<DeviceKind> = listOf(MeadowDeviceKind)
 
     override suspend fun loadAllDevices(): List<Device> {
-        return project.solution.meadowPluginModel.getSerialPorts.startSuspending(project.lifetime, createRunnerInfo()).map { MeadowDevice(it) }
+        return project.solution.meadowPluginModel.getSerialPorts.startSuspending(project.lifetime, Unit).map { MeadowDevice(it) }
     }
 }
 

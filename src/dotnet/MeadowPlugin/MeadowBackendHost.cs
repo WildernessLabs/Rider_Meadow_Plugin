@@ -1,30 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Core;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
+using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
+using Meadow.CLI.Core.DeviceManagement;
 using MeadowPlugin.Deployment;
 using MeadowPlugin.Model;
+using ILogger = JetBrains.Util.ILogger;
 
 namespace MeadowPlugin;
 
 [SolutionComponent]
 public class MeadowBackendHost
 {
-    private readonly MeadowCliExecutor _cliExecutor;
-    private readonly Lifetime _lifetime;
+    private readonly Lifetime _solutionLifetime;
+    private readonly MeadowDevices _devices;
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
 
-    public MeadowBackendHost(ISolution solution, MeadowCliExecutor cliExecutor, Lifetime lifetime)
+    public MeadowBackendHost(ISolution solution, Lifetime solutionLifetime, MeadowDevices devices)
     {
-        _cliExecutor = cliExecutor;
-        _lifetime = lifetime;
+        _solutionLifetime = solutionLifetime;
+        _devices = devices;
         var meadowPluginModel = solution.GetProtocolSolution().GetMeadowPluginModel();
         meadowPluginModel.GetSerialPorts.SetAsync(GetSerialPortsAsync);
         meadowPluginModel.StartDebugServer.Set(StartDebuggingServer);
@@ -32,29 +34,11 @@ public class MeadowBackendHost
     }
 
 
-    private async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, CliRunnerInfo runnerInfo)
+    private async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, Unit _)
     {
         try
         {
-            const string portPrefix = "Found Meadow: ";
-            var ports = new List<string>();
-            var errorOutput = new StringBuilder();
-            await _cliExecutor.ExecuteMeadowCommand(["list", "ports"], runnerInfo.CliPath, lifetime,
-                output =>
-                {
-                    if (output.StartsWith(portPrefix))
-                    {
-                        ports.Add(output.Substring(portPrefix.Length));
-                    }
-                },
-                error => { errorOutput.AppendLine(error); });
-
-            if (!errorOutput.IsEmpty())
-            {
-                OurLogger.Error($"Error while fetching serial ports list: {errorOutput}");
-            }
-
-            return ports;
+            return (await MeadowDeviceManager.GetSerialPorts()).AsList();
         }
         catch (Exception e)
         {
@@ -65,21 +49,27 @@ public class MeadowBackendHost
 
     private Unit StartDebuggingServer(Lifetime lifetime, DebugServerInfo debugServerInfo)
     {
-        _cliExecutor.ExecuteMeadowCommandForSerialPort(
-            debugServerInfo.RunnerInfo.SerialPort,
-            ["debug", "--DebugPort", debugServerInfo.DebugPort.ToString()],
-            debugServerInfo.RunnerInfo.CliPath,
-            _lifetime);
+        var helper = _devices.GetDeviceHelper(debugServerInfo.Device.SerialPort, _solutionLifetime);
+        if (helper == null)
+        {
+            throw new ArgumentException(
+                "A device has not been selected. Please attach a device, then select it from the Device list.");
+        }
+
+        helper.StartDebuggingSession(debugServerInfo.DebugPort, _solutionLifetime).NoAwait();
         return Unit.Instance;
     }
 
-    private async Task<Unit> TerminateAsync(Lifetime lifetime, CliRunnerInfoOnPort runnerInfo)
+    private async Task<Unit> TerminateAsync(Lifetime lifetime, DeviceModel device)
     {
-        await _cliExecutor.ExecuteMeadowCommandForSerialPort(
-            runnerInfo.SerialPort,
-            ["mono", "disable"],
-            runnerInfo.CliPath,
-            lifetime);
+        var helper = _devices.GetDeviceHelper(device.SerialPort, lifetime);
+        if (helper == null)
+        {
+            throw new ArgumentException(
+                "A device has not been selected. Please attach a device, then select it from the Device list.");
+        }
+
+        await helper.MonoDisable(false, lifetime);
         return Unit.Instance;
     }
 }
