@@ -153,6 +153,14 @@ tasks {
         from(outputFolder) {
             into("${rootProject.name}/dotnet")
         }
+
+        val templateBaseDir = projectDir.parentFile.resolve("Meadow.Sdk/Meadow_DotNet_SDK/Project_Templates/templates")
+        for (template in templateBaseDir.listFiles() ?: emptyArray()) {
+            from(template) {
+                into("${rootProject.name}/projectTemplates/${template.name}")
+            }
+        }
+
     }
 
     runIde {
