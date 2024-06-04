@@ -23,12 +23,9 @@ fun MeadowConfigurationParameters.toExecutable(project: Project) : MeadowExecuta
         ?: throw CantRunException(MeadowBundle.message("meadow.os.device.not.selected.message"))
     val runnableProject = tryGetRunnableProject(projectFilePath, project)
         ?: throw CantRunException(RiderRunBundle.message("dialog.message.not.specified.project.error"))
-    val appPath = runnableProject.projectOutputs.firstNotNullOfOrNull {
-        val appPath = File(it.exePath)
-        if (appPath.exists()) appPath else null
-    } ?: throw CantRunException(MeadowBundle.message("meadow.app.does.not.exist.message"))
+    val appPath = runnableProject.projectOutputs.singleOrNull() ?: throw CantRunException(MeadowBundle.message("meadow.app.does.not.exist.message"))
 
-    return MeadowExecutable(runnableProject, projectFilePath, appPath, device)
+    return MeadowExecutable(runnableProject, projectFilePath, File(appPath.exePath), device)
 }
 
 private fun tryGetRunnableProject(projectFilePath: String, project: Project): RunnableProject? {
