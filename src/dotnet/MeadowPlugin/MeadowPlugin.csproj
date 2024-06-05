@@ -10,6 +10,10 @@
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Include="..\Generated\*.cs" LinkBase="Generated" />
+    </ItemGroup>
+    
     <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')"/>
     <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')"/>
     <ItemGroup>

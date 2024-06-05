@@ -14,22 +14,21 @@ public class MeadowDevices(Lifetime solutionLifetime)
     private readonly object _devicesLock = new();
     private readonly Dictionary<string, MeadowDeviceHelper> _devices = new();
 
-    private readonly ILogger _devicesLogger = new MeadowActionsLogger();
-
-    public MeadowDeviceHelper? GetDeviceHelper(string serialPort, Lifetime lifetime)
+    public MeadowDeviceHelper? GetDeviceHelper(string serialPort, Lifetime lifetime, ILogger logger)
     {
         var deviceLifetime = lifetime.Intersect(solutionLifetime);
         
         lock (_devicesLock)
         {
             _devices.TryGetValue(serialPort)?.Dispose();
-            var device = MeadowDeviceManager.FindMeadowBySerialNumber(serialPort, _devicesLogger, 10, deviceLifetime).Result;
+            
+            var device = MeadowDeviceManager.GetMeadowForSerialPort(serialPort, false, logger).Result;
             if (device == null)
             {
                 return null;
             }
 
-            var helper = new MeadowDeviceHelper(device, _devicesLogger);
+            var helper = new MeadowDeviceHelper(device, logger);
             _devices[serialPort] = helper;
 
             deviceLifetime.OnTermination(() =>

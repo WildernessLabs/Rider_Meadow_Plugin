@@ -22,7 +22,7 @@ val dotNetPluginId: String by project
 val riderPluginId: String by project
 
 rdgen {
-    val csOutput = file("../src/dotnet/${dotNetPluginId}/Model").absolutePath
+    val csOutput = file("../src/dotnet/Generated").absolutePath
     val ktOutput = file("../src/rider/generated/kotlin/${riderPluginId.replace('.','/').lowercase()}").absolutePath
 
     verbose = true

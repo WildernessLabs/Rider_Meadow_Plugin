@@ -8,3 +8,5 @@ output
 nuget.config
 .intellijPlatform/*
 *DotSettings.user
+src/rider/generated/
+src/dotnet/Generated

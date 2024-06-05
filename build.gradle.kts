@@ -79,19 +79,22 @@ tasks {
     val generateDotNetSdkProperties by registering {
         val dotNetSdkGeneratedPropsFile = File(projectDir, "build/DotNetSdkPath.Generated.props")
         doLast {
-            dotNetSdkGeneratedPropsFile.writeTextIfChanged("""<Project>
+            dotNetSdkGeneratedPropsFile.writeTextIfChanged(
+                """<Project>
   <PropertyGroup>
     <DotNetSdkPath>$riderSdkPath</DotNetSdkPath>
   </PropertyGroup>
 </Project>
-""")
+"""
+            )
         }
     }
 
     val generateNuGetConfig by registering {
         val nuGetConfigFile = File(dotNetSrcDir, "nuget.config")
         doLast {
-            nuGetConfigFile.writeTextIfChanged("""
+            nuGetConfigFile.writeTextIfChanged(
+                """
             <?xml version="1.0" encoding="utf-8"?>
             <!-- Auto-generated from 'generateNuGetConfig' task of old.build_gradle.kts -->
             <!-- Run `gradlew :prepare` to regenerate -->
@@ -100,7 +103,8 @@ tasks {
                     <add key="rider-sdk" value="$riderSdkPath" />
                 </packageSources>
             </configuration>
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
     }
 
@@ -114,7 +118,7 @@ tasks {
         dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
         doLast {
             exec {
-                executable("dotnet")
+                executable("dotnet-sdk.cmd")
                 args("publish", "-c", buildConfiguration, dotNetProjectPath)
             }
         }
@@ -151,7 +155,34 @@ tasks {
         val outputFolder = file("$dotNetSrcDir/$dotNetPluginId/bin/$buildConfiguration/publish")
 
         from(outputFolder) {
-            into("${rootProject.name}/dotnet")
+            into("${rootProject.name}/net-v2")
+            exclude(
+                "**/*/System.Drawing.Common.dll",
+                "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+                "Microsoft.Extensions.DependencyInjection.dll",
+                "Microsoft.Extensions.Logging.Abstractions.dll",
+                "Microsoft.Extensions.Logging.dll",
+                "Microsoft.Extensions.Options.dll",
+                "Microsoft.Extensions.Primitives.dll",
+                "Microsoft.IdentityModel.JsonWebTokens.dll",
+                "Microsoft.IdentityModel.Logging.dll",
+                "Microsoft.IdentityModel.Tokens.dll",
+                "Microsoft.Win32.SystemEvents.dll",
+                "Mono.Cecil.dll",
+                "Mono.Cecil.Mdb.dll",
+                "Mono.Cecil.Pdb.dll",
+                "Mono.Cecil.Rocks.dll",
+                "Newtonsoft.Json.dll",
+                "System.CodeDom.dll",
+                "System.Configuration.ConfigurationManager.dll",
+                "System.Diagnostics.EventLog.dll",
+                "System.Drawing.Common.dll",
+                "System.IO.Ports.dll",
+                "System.Security.Cryptography.ProtectedData.dll",
+                "System.Security.Permissions.dll",
+                "System.Windows.Extensions.dll",
+                "YamlDotNet.dll"
+            )
         }
 
         val templateBaseDir = projectDir.parentFile.resolve("Meadow.Sdk/Meadow_DotNet_SDK/Project_Templates/templates")
