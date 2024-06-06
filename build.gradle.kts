@@ -117,9 +117,11 @@ tasks {
     val publishDotnet by registering {
         dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
         doLast {
+            val dotNetCliPath = projectDir.resolve("dotnet-sdk.cmd")
             exec {
-                executable("dotnet-sdk.cmd")
+                executable(dotNetCliPath)
                 args("publish", "-c", buildConfiguration, dotNetProjectPath)
+                workingDir = projectDir
             }
         }
     }
