@@ -57,7 +57,7 @@ public class MeadowDeploymentProvider(MeadowDevices devices) : IDeploymentProvid
                 return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
             }
 
-            var helper = devices.GetDeviceHelper(meadowDeploymentArgs.Device.SerialPort, lifetime, deploymentSessionLogger);
+            var helper = await devices.GetDeviceHelperAsync(meadowDeploymentArgs.Device.SerialPort, lifetime, deploymentSessionLogger);
             if (helper == null)
             {
                 deploymentSession.OutputAdded(new OutputMessage(

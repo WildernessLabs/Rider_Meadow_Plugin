@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using JetBrains.HabitatDetector;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
@@ -26,18 +27,20 @@ public class MeadowDevices
             var assemblyLocation = assembly.Location;
             // ReSharper disable SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             var nativeLibrary = Path.GetFullPath(HabitatInfo.Platform switch
-                {
+            {
                 JetPlatform.Linux => HabitatInfo.ProcessArchitecture switch
                 {
                     JetArchitecture.Arm => Path.Combine(assemblyLocation, $"../../../../linux-arm/native/{name}.so"),
-                    JetArchitecture.Arm64 => Path.Combine(assemblyLocation, $"../../../../linux-arm64/native/{name}.so"),
+                    JetArchitecture.Arm64 => Path.Combine(assemblyLocation,
+                        $"../../../../linux-arm64/native/{name}.so"),
                     JetArchitecture.X64 => Path.Combine(assemblyLocation, $"../../../../linux-x64/native/{name}.so"),
                     _ => throw new ArgumentOutOfRangeException(
                         $"Unsupported Linux processor architecture: {HabitatInfo.ProcessArchitecture}")
                 },
                 JetPlatform.MacOsX => HabitatInfo.ProcessArchitecture switch
                 {
-                    JetArchitecture.Arm64 => Path.Combine(assemblyLocation, $"../../../../osx-arm64/native/{name}.dylib"),
+                    JetArchitecture.Arm64 => Path.Combine(assemblyLocation,
+                        $"../../../../osx-arm64/native/{name}.dylib"),
                     JetArchitecture.X64 => Path.Combine(assemblyLocation, $"../../../../osx-x64/native/{name}.dylib"),
                     _ => throw new ArgumentOutOfRangeException(
                         $"Unsupported macOS processor architecture: {HabitatInfo.ProcessArchitecture}")
@@ -60,36 +63,38 @@ public class MeadowDevices
 
     private readonly Dictionary<string, MeadowDeviceHelper> _devices = new();
 
-    public MeadowDeviceHelper? GetDeviceHelper(string serialPort, Lifetime lifetime, ILogger logger)
+    public async Task<MeadowDeviceHelper?> GetDeviceHelperAsync(string serialPort, Lifetime lifetime, ILogger logger)
     {
         var deviceLifetime = lifetime.Intersect(_solutionLifetime);
-        
+
         lock (_devicesLock)
         {
             _devices.TryGetValue(serialPort)?.Dispose();
-            
-            var device = MeadowDeviceManager.GetMeadowForSerialPort(serialPort, false, logger).Result;
-            if (device == null)
-            {
-                return null;
-            }
-
-            var helper = new MeadowDeviceHelper(device, logger);
-            _devices[serialPort] = helper;
-
-            deviceLifetime.OnTermination(() =>
-            {
-                lock (_devicesLock)
-                {
-                    if (_devices.TryGetValue(serialPort) != helper)
-                        return;
-                    helper.Dispose();
-                    _devices.Remove(serialPort);
-                }
-            });
-
-            return helper;
         }
-    }
 
+        var device = await MeadowDeviceManager.GetMeadowForSerialPort(serialPort, false, logger);
+        if (device == null)
+        {
+            return null;
+        }
+
+        var helper = new MeadowDeviceHelper(device, logger);
+        lock (_devicesLock)
+        {
+            _devices[serialPort] = helper;
+        }
+
+        deviceLifetime.OnTermination(() =>
+        {
+            lock (_devicesLock)
+            {
+                if (_devices.TryGetValue(serialPort) != helper)
+                    return;
+                helper.Dispose();
+                _devices.Remove(serialPort);
+            }
+        });
+
+        return helper;
+    }
 }

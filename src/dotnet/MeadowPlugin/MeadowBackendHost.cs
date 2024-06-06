@@ -29,12 +29,12 @@ public class MeadowBackendHost
         _devices = devices;
         var meadowPluginModel = solution.GetProtocolSolution().GetMeadowPluginModel();
         meadowPluginModel.GetSerialPorts.SetAsync(GetSerialPortsAsync);
-        meadowPluginModel.StartDebugServer.Set(StartDebuggingServer);
-        meadowPluginModel.Terminate.Set(TerminateAsync);
+        meadowPluginModel.StartDebugServer.SetAsync(StartDebuggingServer);
+        meadowPluginModel.Terminate.SetAsync(TerminateAsync);
     }
 
 
-    private async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, Unit _)
+    private static async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, Unit _)
     {
         try
         {
@@ -47,9 +47,9 @@ public class MeadowBackendHost
         }
     }
 
-    private Unit StartDebuggingServer(Lifetime lifetime, DebugServerInfo debugServerInfo)
+    private async Task<Unit> StartDebuggingServer(Lifetime lifetime, DebugServerInfo debugServerInfo)
     {
-        var helper = _devices.GetDeviceHelper(debugServerInfo.Device.SerialPort, _solutionLifetime, new MeadowActionsLogger());
+        var helper = await _devices.GetDeviceHelperAsync(debugServerInfo.Device.SerialPort, _solutionLifetime, new MeadowActionsLogger());
         if (helper == null)
         {
             throw new ArgumentException(
@@ -62,7 +62,7 @@ public class MeadowBackendHost
 
     private async Task<Unit> TerminateAsync(Lifetime lifetime, DeviceModel device)
     {
-        var helper = _devices.GetDeviceHelper(device.SerialPort, lifetime, new MeadowActionsLogger());
+        var helper = await _devices.GetDeviceHelperAsync(device.SerialPort, lifetime, new MeadowActionsLogger());
         if (helper == null)
         {
             throw new ArgumentException(
