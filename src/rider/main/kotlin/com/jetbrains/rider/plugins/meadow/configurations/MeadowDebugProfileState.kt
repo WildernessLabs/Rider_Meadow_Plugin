@@ -1,12 +1,15 @@
 package com.jetbrains.rider.plugins.meadow.configurations
 
 import com.intellij.execution.CantRunException
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.model.DeploymentResultStatus
 import com.jetbrains.rider.model.debuggerWorker.DebuggerStartInfoBase
+import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.model.debuggerWorker.MonoAttachStartInfo
+import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
 import com.jetbrains.rider.plugins.meadow.model.DebugServerInfo
 import com.jetbrains.rider.plugins.meadow.model.meadowPluginModel
 import com.jetbrains.rider.projectView.solution
@@ -35,6 +38,16 @@ class MeadowDebugProfileState(private val executable: MeadowExecutable, private 
     override val attached: Boolean = false
     override val consoleKind: ConsoleKind = ConsoleKind.Normal
 
+    override suspend fun createDebuggerWorker(
+        workerCmd: GeneralCommandLine,
+        protocolModel: DebuggerWorkerModel,
+        protocolServerPort: Int,
+        projectLifetime: Lifetime
+    ): DebuggerWorkerProcessHandler {
+        val worker = super.createDebuggerWorker(workerCmd, protocolModel, protocolServerPort, projectLifetime)
+        worker.attachTargetProcess(MeadowAppProcessHandler(executable.device, executionEnvironment.project))
+        return worker
+    }
 
     override suspend fun createModelStartInfo(lifetime: Lifetime): DebuggerStartInfoBase {
         val deploymentResult = deploy(executable, true, environment.project)

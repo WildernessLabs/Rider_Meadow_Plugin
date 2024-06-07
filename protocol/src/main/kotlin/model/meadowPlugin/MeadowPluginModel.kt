@@ -28,10 +28,16 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
         field("debugPort", PredefinedType.int)
     }
 
+    private val AppOutput = structdef {
+        field("serialPort", PredefinedType.string)
+        field("text", PredefinedType.string)
+    }
+
     init {
         call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
         call("startDebugServer", DebugServerInfo, PredefinedType.void).async
         call("terminate", DeviceModel, PredefinedType.void).async
+        sink("appOutput", AppOutput)
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
         setting(CSharp50Generator.Namespace, "MeadowPlugin.Model")
     }
