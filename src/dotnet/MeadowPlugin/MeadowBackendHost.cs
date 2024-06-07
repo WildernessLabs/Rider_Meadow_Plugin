@@ -56,7 +56,7 @@ public class MeadowBackendHost
                 "A device has not been selected. Please attach a device, then select it from the Device list.");
         }
 
-        helper.StartDebuggingSession(debugServerInfo.DebugPort, _solutionLifetime).NoAwait();
+        await helper.StartDebuggingSession(debugServerInfo.DebugPort, _solutionLifetime);
         return Unit.Instance;
     }
 

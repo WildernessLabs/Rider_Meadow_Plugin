@@ -39,7 +39,7 @@ class MeadowConfigurationType : ConfigurationTypeBase(
     override val defaultConfigurationPriority: Int
         get() = 15
 
-    override fun tryCreateDefault(
+    override suspend fun tryCreateDefault(
         project: Project,
         lifetime: Lifetime,
         projects: List<RunnableProject>,
