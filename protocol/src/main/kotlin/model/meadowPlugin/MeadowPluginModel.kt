@@ -17,15 +17,19 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
     private val MeadowDeploymentArgs = structdef extends DeploymentArgsBase {
         field("device", DeviceModel)
         field("appPath", PredefinedType.string)
-        field("debug", PredefinedType.bool)
+        field("debugPort", PredefinedType.int)
     }
 
     private val MeadowDeploymentResult = structdef extends DeploymentResultBase {
     }
 
-    private val DebugServerInfo = structdef {
+    private val AppInfoBase = basestruct {
         field("device", DeviceModel)
-        field("debugPort", PredefinedType.int)
+    }
+
+    private val AppRunSessionModel = classdef {
+        sink("outputReceived", PredefinedType.string).async
+        source("terminate", PredefinedType.void).async
     }
 
     private val AppOutput = structdef {
@@ -35,8 +39,7 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
 
     init {
         call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
-        call("startDebugServer", DebugServerInfo, PredefinedType.void).async
-        call("terminate", DeviceModel, PredefinedType.void).async
+        map("runSessions", PredefinedType.string, AppRunSessionModel).async
         sink("appOutput", AppOutput)
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
         setting(CSharp50Generator.Namespace, "MeadowPlugin.Model")

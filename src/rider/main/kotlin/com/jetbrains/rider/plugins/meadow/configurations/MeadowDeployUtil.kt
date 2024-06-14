@@ -13,9 +13,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun deploySync(executable: MeadowExecutable, debug: Boolean, project: Project) : MeadowDeploymentResult {
+fun deployWithoutDebugging(executable: MeadowExecutable, project: Project) : MeadowDeploymentResult {
     val deploymentResultDeferred = project.service<MeadowLifetimeService>().scope.async(Dispatchers.Main) {
-        deploy(executable, debug, project)
+        deploy(executable, -1, project)
     }
 
     pumpMessages { deploymentResultDeferred.isCompleted }
@@ -23,12 +23,12 @@ fun deploySync(executable: MeadowExecutable, debug: Boolean, project: Project) :
     return deploymentResultDeferred.getCompleted()
 }
 
-suspend fun deploy(executable: MeadowExecutable, debug: Boolean, project: Project): MeadowDeploymentResult {
+suspend fun deploy(executable: MeadowExecutable, debugPort: Int, project: Project): MeadowDeploymentResult {
     return RiderDeploymentHost.getInstance(project).deployWithProgress(
         MeadowDeploymentArgs(
             executable.device.toModel(),
             executable.appPath.absolutePath,
-            debug,
+            debugPort,
             executable.runnableProject.kind,
             executable.projectFilePath)
     )

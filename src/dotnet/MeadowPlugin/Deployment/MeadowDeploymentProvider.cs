@@ -12,6 +12,8 @@ using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
 using Meadow.CLI.Core;
+using Meadow.CLI.Core.DeviceManagement;
+using Meadow.CLI.Core.Devices;
 using MeadowPlugin.Model;
 using Microsoft.Extensions.Logging;
 using ILogger = JetBrains.Util.ILogger;
@@ -19,7 +21,7 @@ using ILogger = JetBrains.Util.ILogger;
 namespace MeadowPlugin.Deployment;
 
 [SolutionComponent]
-public class MeadowDeploymentProvider(MeadowDevices devices) : IDeploymentProvider
+public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDeploymentProvider
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
 
@@ -38,6 +40,11 @@ public class MeadowDeploymentProvider(MeadowDevices devices) : IDeploymentProvid
         lifetime.StartBackground(async () =>
         {
             var result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
+            if (result.Status == DeploymentResultStatus.Success)
+            {
+                await meadowBackendHost.RegisterAppSessionAsync(meadowDeploymentArgs.Device.SerialPort,
+                    meadowDeploymentArgs.DebugPort);
+            }
             lifetime.StartMainUnguarded(() => { deploymentSession.Result.Set(result); }).NoAwait();
         });
     }
@@ -57,14 +64,17 @@ public class MeadowDeploymentProvider(MeadowDevices devices) : IDeploymentProvid
                 return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
             }
 
-            var helper = await devices.GetDeviceHelperAsync(meadowDeploymentArgs.Device.SerialPort, lifetime, deploymentSessionLogger);
-            if (helper == null)
+            var device = await MeadowDeviceManager.GetMeadowForSerialPort(meadowDeploymentArgs.Device.SerialPort, false, deploymentSessionLogger);
+            if (device == null)
             {
+                
                 deploymentSession.OutputAdded(new OutputMessage(
                     "A device has not been selected. Please attach a device, then select it from the Device list.",
                     DeployMessageKind.Error));
                 return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
             }
+
+            var helper = new MeadowDeviceHelper(device, deploymentSessionLogger);
 
             var osVersion = await helper.GetOSVersion(TimeSpan.FromSeconds(30), lifetime);
 
@@ -80,7 +90,7 @@ public class MeadowDeploymentProvider(MeadowDevices devices) : IDeploymentProvid
                 deploymentSessionLogger.LogWarning("Meadow assemblies download failed, using local copy");
             }
 
-            await helper.DeployApp(meadowDeploymentArgs.AppPath, meadowDeploymentArgs.Debug, lifetime, true);
+            await helper.DeployApp(meadowDeploymentArgs.AppPath, meadowDeploymentArgs.DebugPort > 0, lifetime, true);
 
             return new MeadowDeploymentResult(DeploymentResultStatus.Success);
         }
