@@ -23,10 +23,6 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
     private val MeadowDeploymentResult = structdef extends DeploymentResultBase {
     }
 
-    private val AppInfoBase = basestruct {
-        field("device", DeviceModel)
-    }
-
     private val AppRunSessionModel = classdef {
         sink("outputReceived", PredefinedType.string).async
         source("terminate", PredefinedType.void).async

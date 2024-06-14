@@ -39,12 +39,27 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
 
         lifetime.StartBackground(async () =>
         {
-            var result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
-            if (result.Status == DeploymentResultStatus.Success)
+            MeadowDeploymentResult result;
+            try
             {
-                await meadowBackendHost.RegisterAppSessionAsync(meadowDeploymentArgs.Device.SerialPort,
-                    meadowDeploymentArgs.DebugPort);
+                await meadowBackendHost.DropSessionForSerialPort(meadowDeploymentArgs.Device.SerialPort);
+                result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
+                if (result.Status == DeploymentResultStatus.Success)
+                {
+                    await meadowBackendHost.RegisterAppSessionAsync(meadowDeploymentArgs.Device.SerialPort,
+                        meadowDeploymentArgs.DebugPort);
+                }
             }
+            catch (TaskCanceledException)
+            {
+                result = new MeadowDeploymentResult(DeploymentResultStatus.Cancelled);
+            }
+            catch (Exception e)
+            {
+                OurLogger.Error(e);
+                result = new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+            }
+
             lifetime.StartMainUnguarded(() => { deploymentSession.Result.Set(result); }).NoAwait();
         });
     }
@@ -54,55 +69,43 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
         MeadowDeploymentArgs meadowDeploymentArgs)
     {
         var deploymentSessionLogger = new DeploymentSessionLogger(deploymentSession);
-        try
+        var appPath = meadowDeploymentArgs.AppPath;
+        if (!File.Exists(appPath))
         {
-            var appPath = meadowDeploymentArgs.AppPath;
-            if (!File.Exists(appPath))
-            {
-                deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
-                    DeployMessageKind.Error));
-                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-            }
-
-            var device = await MeadowDeviceManager.GetMeadowForSerialPort(meadowDeploymentArgs.Device.SerialPort, false, deploymentSessionLogger);
-            if (device == null)
-            {
-                
-                deploymentSession.OutputAdded(new OutputMessage(
-                    "A device has not been selected. Please attach a device, then select it from the Device list.",
-                    DeployMessageKind.Error));
-                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-            }
-
-            var helper = new MeadowDeviceHelper(device, deploymentSessionLogger);
-
-            var osVersion = await helper.GetOSVersion(TimeSpan.FromSeconds(30), lifetime);
-
-            try
-            {
-                // make sure we have the same locally because we will do linking/trimming against that runtime
-                await new DownloadManager(deploymentSessionLogger).DownloadOsBinaries(osVersion, false, lifetime);
-            }
-            catch
-            {
-                //OS binaries failed to download
-                //Either no internet connection or we're depoying to a pre-release OS version 
-                deploymentSessionLogger.LogWarning("Meadow assemblies download failed, using local copy");
-            }
-
-            await helper.DeployApp(meadowDeploymentArgs.AppPath, meadowDeploymentArgs.DebugPort > 0, lifetime, true);
-
-            return new MeadowDeploymentResult(DeploymentResultStatus.Success);
-        }
-        catch (TaskCanceledException)
-        {
-            return new MeadowDeploymentResult(DeploymentResultStatus.Cancelled);
-        }
-        catch (Exception e)
-        {
-            OurLogger.Error(e);
+            deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
+                DeployMessageKind.Error));
             return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
         }
+
+        var device = await MeadowDeviceManager.GetMeadowForSerialPort(meadowDeploymentArgs.Device.SerialPort, false,
+            deploymentSessionLogger);
+        if (device == null)
+        {
+            deploymentSession.OutputAdded(new OutputMessage(
+                "A device has not been selected. Please attach a device, then select it from the Device list.",
+                DeployMessageKind.Error));
+            return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+        }
+
+        using var helper = new MeadowDeviceHelper(device, deploymentSessionLogger);
+
+        var osVersion = await helper.GetOSVersion(TimeSpan.FromSeconds(30), lifetime);
+
+        try
+        {
+            // make sure we have the same locally because we will do linking/trimming against that runtime
+            await new DownloadManager(deploymentSessionLogger).DownloadOsBinaries(osVersion, false, lifetime);
+        }
+        catch
+        {
+            //OS binaries failed to download
+            //Either no internet connection or we're depoying to a pre-release OS version 
+            deploymentSessionLogger.LogWarning("Meadow assemblies download failed, using local copy");
+        }
+
+        await helper.DeployApp(meadowDeploymentArgs.AppPath, meadowDeploymentArgs.DebugPort > 0, lifetime, true);
+
+        return new MeadowDeploymentResult(DeploymentResultStatus.Success);
     }
 }
 
