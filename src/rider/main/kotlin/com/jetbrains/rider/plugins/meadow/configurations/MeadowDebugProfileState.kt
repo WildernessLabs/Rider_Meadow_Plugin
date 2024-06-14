@@ -2,6 +2,8 @@ package com.jetbrains.rider.plugins.meadow.configurations
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ProcessEvent
+import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -51,7 +53,9 @@ class MeadowDebugProfileState(private val executable: MeadowExecutable, private 
 
         val worker = super.createDebuggerWorker(workerCmd, protocolModel, protocolServerPort, projectLifetime)
         val sessionModel = environment.project.solution.meadowPluginModel.runSessions[executable.device.port] ?: throw IllegalStateException("Run model should not be null")
-        worker.attachTargetProcess(MeadowAppProcessHandler(sessionModel, executionEnvironment.project))
+        val processHandler = MeadowAppProcessHandler(sessionModel, executionEnvironment.project).apply { startNotify() }
+        worker.attachTargetProcess(processHandler)
+
         return worker
     }
 
