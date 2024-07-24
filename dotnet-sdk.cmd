@@ -7,7 +7,7 @@ set -eu
 
 DOTNET_VERSION=8.0.300
 SCRIPT_VERSION=v2
-COMPANY_DIR="Mikhail Filippov"
+COMPANY_DIR="WildernessLabs"
 TARGET_DIR="${TEMPDIR:-$HOME/.local/share}/$COMPANY_DIR/dotnet-cmd"
 KEEP_ROSETTA2=false
 
@@ -136,7 +136,7 @@ exec "$DOTNET_TARGET_DIR/dotnet" "$@"
 setlocal
 set DOTNET_VERSION=8.0.300
 set SCRIPT_VERSION=v2
-set COMPANY_NAME=Mikhail Filippov
+set COMPANY_NAME=WildernessLabs
 set TARGET_DIR=%LOCALAPPDATA%\%COMPANY_NAME%\dotnet-cmd\
 
 for /f "tokens=3 delims= " %%a in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v "PROCESSOR_ARCHITECTURE"') do set ARCH=%%a
