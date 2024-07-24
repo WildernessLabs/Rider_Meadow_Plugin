@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeadowPlugin", "src\dotnet\MeadowPlugin\MeadowPlugin.csproj", "{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C56989BB-F07B-4FF6-AB36-782B93109977}"
+	ProjectSection(SolutionItems) = preProject
+		src\dotnet\Directory.Build.props = src\dotnet\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Externals", "Externals", "{02D77B11-50B0-463C-9EA7-D455985E3614}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.CLI", "..\Meadow.CLI\Meadow.CLI\Meadow.CLI.csproj", "{63C265F1-CFE0-4E33-B148-9E987E4D65C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.CLI.Core.6.0.0", "..\Meadow.CLI\Meadow.CLI.Core\Meadow.CLI.Core.6.0.0.csproj", "{26D20B2C-9276-424D-83F8-84E578A5A779}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Hcom.6.0.0", "..\Meadow.CLI\Meadow.Hcom\Meadow.Hcom.6.0.0.csproj", "{03B125E8-7454-4B70-A774-6365340507EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C399786-820A-4F0B-935B-C0ED2DE207F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C1B836-477B-4FF6-9B3E-AE7DE6C9BAD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63C265F1-CFE0-4E33-B148-9E987E4D65C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63C265F1-CFE0-4E33-B148-9E987E4D65C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63C265F1-CFE0-4E33-B148-9E987E4D65C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63C265F1-CFE0-4E33-B148-9E987E4D65C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26D20B2C-9276-424D-83F8-84E578A5A779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26D20B2C-9276-424D-83F8-84E578A5A779}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26D20B2C-9276-424D-83F8-84E578A5A779}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26D20B2C-9276-424D-83F8-84E578A5A779}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03B125E8-7454-4B70-A774-6365340507EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03B125E8-7454-4B70-A774-6365340507EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03B125E8-7454-4B70-A774-6365340507EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03B125E8-7454-4B70-A774-6365340507EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{63C265F1-CFE0-4E33-B148-9E987E4D65C3} = {02D77B11-50B0-463C-9EA7-D455985E3614}
+		{26D20B2C-9276-424D-83F8-84E578A5A779} = {02D77B11-50B0-463C-9EA7-D455985E3614}
+		{03B125E8-7454-4B70-A774-6365340507EA} = {02D77B11-50B0-463C-9EA7-D455985E3614}
+	EndGlobalSection
+EndGlobal
