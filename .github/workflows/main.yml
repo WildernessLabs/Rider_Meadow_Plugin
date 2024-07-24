@@ -61,30 +61,30 @@ jobs:
       # Common preparation
       - name: Prepare build
         run: ./gradlew prepare
+        working-directory: ./main
 
       # Backend
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      
       - name: Build Backend
         run: dotnet build -c Release
+        working-directory: ./main
+        
+      # Distribution
+      - name: Build Distribution
+        run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} buildPlugin
+        working-directory: ./main
 
-      # Frontend
-      - name: Test
-        run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} :check
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}.test-results
-          path: build/reports/tests
-        if: ${{ always() }}
-      - name: Upload Test Logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}.test-logs
-          path: build/idea-sandbox/*/log-test
-        if: ${{ always() }}
+      # Publish
+      - if: ${{ github.ref == 'refs/heads/main' }}
+        name: Publish
+        shell: pwsh
+        run: scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
+        env:
+          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
 
   validation:
     runs-on: ubuntu-22.04
