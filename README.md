@@ -20,6 +20,6 @@ Initial Release of the Rider plugin
 
 <!-- Plugin description -->
 Clone:
-git clone ssh://git@github.com/WildernessLabs/Meadow.CLI.git
+```git clone git@github.com/WildernessLabs/Meadow.CLI.git```
 in parent folder of this repository
 <!-- Plugin description end -->
