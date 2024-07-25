@@ -19,7 +19,7 @@ This is the plugin for Rider that enables Meadow apps to be built, debugged and 
 
 ### 1.0.0
 
-Initial Release of the Rider plugin
+Initial Release of the Rider plugin for [Meadow](https://developer.wildernesslabs.co/Meadow/) from [Wilderness Labs](https://www.wildernesslabs.co/). 
 
 ## Getting Started
 
@@ -30,8 +30,6 @@ $ ./gradlew prepare
 ```
 
 This will download the initial set of dependencies necessary for the plugin development and set up Rider SDK for .NET part of the project. After that, open either the frontend part of the plugin (the directory containing `build.gradle.kts`) using IntelliJ IDEA, or the `Rider_Meadow_Plugin.sln` using Rider.
-
-[gradle-jvm-wrapper]: https://github.com/mfilippov/gradle-jvm-wrapper
 
 ## Contributer Guide
 
