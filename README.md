@@ -1,4 +1,4 @@
-<img src="Design/wildernesslabs-meadow-vscode-extension.jpg" style="margin-bottom:10px" />
+<img src="design/wildernesslabs-meadow-rider-plugin.jpg" style="margin-bottom:10px" />
 
 # Rider_Meadow_Plugin
 
