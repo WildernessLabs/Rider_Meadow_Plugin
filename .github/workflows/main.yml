@@ -82,8 +82,7 @@ jobs:
 
       - name: Unpack distribution # for the purpose of uploading
         shell: pwsh
-        run: scripts/Unpack-Distribution.ps1
-        working-directory: ./main
+        run: main/scripts/Unpack-Distribution.ps1
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
@@ -95,7 +94,7 @@ jobs:
       - if: ${{ github.ref == 'refs/heads/main' }}
         name: Publish
         shell: pwsh
-        run: scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
+        run: main/scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
         env:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
 
