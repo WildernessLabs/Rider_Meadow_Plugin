@@ -89,11 +89,11 @@ jobs:
         if: matrix.image == 'ubuntu-22.04' # Only on Linux to avoid zip name clash
         uses: actions/upload-artifact@v4
         with:
-          name: rider-meadow-plugin-${{ ENV.IDE_TOOLS_RELEASE_VERSION }}.zip
+          name: rider-meadow-plugin-${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
           path: main/build/distributions/unpacked
 
       # Publish
-      - if: ${{ github.ref == 'refs/heads/main' }}
+      - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
         name: Publish
         shell: pwsh
         run: main/scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
