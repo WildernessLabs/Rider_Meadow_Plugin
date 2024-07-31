@@ -1,4 +1,6 @@
-name: Main
+name: Rider plugin
+env:
+  IDE_TOOLS_RELEASE_VERSION: 1.0.0
 
 on:
   push:
@@ -23,7 +25,10 @@ jobs:
       DOTNET_NOLOGO: 1
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          path: main
 
       - if: ${{ github.ref == 'refs/heads/main' }}
         name: Checkout Meadow.CLI.Core side-by-side
@@ -58,30 +63,42 @@ jobs:
       # Common preparation
       - name: Prepare build
         run: ./gradlew prepare
+        working-directory: ./main
 
       # Backend
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      
       - name: Build Backend
         run: dotnet build -c Release
+        working-directory: ./main
+        
+      # Distribution
+      - name: Build Distribution
+        run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} buildPlugin
+        working-directory: ./main
 
-      # Frontend
-      - name: Test
-        run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} :check
-      - name: Upload Test Results
+      - name: Unpack distribution # for the purpose of uploading. Only on Linux to avoid zip name clash
+        if: matrix.image == 'ubuntu-22.04'
+        shell: pwsh
+        run: main/scripts/Unpack-Distribution.ps1
+
+      - name: Upload the artifact
+        if: matrix.image == 'ubuntu-22.04' # Only on Linux to avoid zip name clash
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }}.test-results
-          path: build/reports/tests
-        if: ${{ always() }}
-      - name: Upload Test Logs
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}.test-logs
-          path: build/idea-sandbox/*/log-test
-        if: ${{ always() }}
+          name: rider-meadow-plugin-${{ ENV.IDE_TOOLS_RELEASE_VERSION }}.zip
+          path: main/build/distributions/unpacked
+
+      # Publish
+      - if: ${{ github.ref == 'refs/heads/main' }}
+        name: Publish
+        shell: pwsh
+        run: main/scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
+        env:
+          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
 
   validation:
     runs-on: ubuntu-22.04
