@@ -80,11 +80,13 @@ jobs:
         run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} buildPlugin
         working-directory: ./main
 
-      - name: Unpack distribution # for the purpose of uploading
+      - name: Unpack distribution # for the purpose of uploading. Only on Linux to avoid zip name clash
+        if: matrix.image == 'ubuntu-22.04'
         shell: pwsh
         run: main/scripts/Unpack-Distribution.ps1
 
       - name: Upload the artifact
+        if: matrix.image == 'ubuntu-22.04' # Only on Linux to avoid zip name clash
         uses: actions/upload-artifact@v4
         with:
           name: rider-meadow-plugin-${{ ENV.IDE_TOOLS_RELEASE_VERSION }}.zip
