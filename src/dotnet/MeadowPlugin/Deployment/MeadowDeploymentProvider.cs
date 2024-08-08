@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.DataFlow;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.Rd.Base;
@@ -11,9 +11,12 @@ using JetBrains.Rider.Model;
 using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using Meadow.CLI.Core;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
+using Meadow.CLI;
+using Meadow.CLI.Commands.DeviceManagement;
+using Meadow.Hcom;
+using Meadow.Package;
+using Meadow.Software;
+using MeadowPlugin.Logging;
 using MeadowPlugin.Model;
 using Microsoft.Extensions.Logging;
 using ILogger = JetBrains.Util.ILogger;
@@ -24,6 +27,8 @@ namespace MeadowPlugin.Deployment;
 public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDeploymentProvider
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
+    private IMeadowConnection? _meadowConnection;
+    private DeploymentSessionLogger? _deploymentSessionLogger;
 
     public bool IsApplicable(DeploymentArgsBase args)
     {
@@ -68,81 +73,95 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
         Lifetime lifetime,
         MeadowDeploymentArgs meadowDeploymentArgs)
     {
-        var deploymentSessionLogger = new DeploymentSessionLogger(deploymentSession);
-        var appPath = meadowDeploymentArgs.AppPath;
-        if (!File.Exists(appPath))
+        _deploymentSessionLogger = new DeploymentSessionLogger(deploymentSession);
+
+        if (_meadowConnection != null)
         {
-            deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
-                DeployMessageKind.Error));
-            return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+            _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+            _meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
         }
 
-        var device = await MeadowDeviceManager.GetMeadowForSerialPort(meadowDeploymentArgs.Device.SerialPort, false,
-            deploymentSessionLogger);
-        if (device == null)
+        _meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(meadowDeploymentArgs.Device.SerialPort);
+
+        if (_meadowConnection == null)
         {
             deploymentSession.OutputAdded(new OutputMessage(
                 "A device has not been selected. Please attach a device, then select it from the Device list.",
                 DeployMessageKind.Error));
             return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
         }
-
-        using var helper = new MeadowDeviceHelper(device, deploymentSessionLogger);
-
-        var osVersion = await helper.GetOSVersion(TimeSpan.FromSeconds(30), lifetime);
-
-        try
+        else
         {
-            // make sure we have the same locally because we will do linking/trimming against that runtime
-            await new DownloadManager(deploymentSessionLogger).DownloadOsBinaries(osVersion, false, lifetime);
+            _meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+            _meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+
+            await _meadowConnection.WaitForMeadowAttach();
+
+            await _meadowConnection.RuntimeDisable();
+
+            var deviceInfo = await _meadowConnection.GetDeviceInfo(lifetime);
+            string osVersion = deviceInfo?.OsVersion;
+
+            var fileManager = new FileManager(null);
+            await fileManager.Refresh();
+
+            var collection = fileManager.Firmware["Meadow F7"];
+
+            var isDebugging = meadowDeploymentArgs.DebugPort > 0;
+
+            try
+            {
+                var packageManager = new PackageManager(fileManager);
+
+                var appPath = meadowDeploymentArgs.AppPath;
+                if (!File.Exists(appPath))
+                {
+                    deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
+                        DeployMessageKind.Error));
+                    return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+                }
+
+                if (!string.IsNullOrEmpty(appPath))
+                {
+                    _deploymentSessionLogger.LogInformation("Trimming...");
+                    await packageManager.TrimApplication(new System.IO.FileInfo(appPath), osVersion, isDebugging, cancellationToken: lifetime);
+
+                    var appFolder = Path.GetDirectoryName(appPath) ?? ".";
+                    _deploymentSessionLogger.LogInformation("Deploying...");
+                    await AppManager.DeployApplication(packageManager, _meadowConnection, osVersion, appFolder, isDebugging, false, _deploymentSessionLogger, lifetime);
+
+                    await _meadowConnection.RuntimeEnable();
+                }
+            }
+            catch (Exception e)
+            {
+                _deploymentSessionLogger.LogError(e.Message);
+                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+            }
+            finally
+            {
+                _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+            }
+
+            return new MeadowDeploymentResult(DeploymentResultStatus.Success);
         }
-        catch
+    }
+
+    private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
+    {
+        if (_deploymentSessionLogger != null)
         {
-            //OS binaries failed to download
-            //Either no internet connection or we're depoying to a pre-release OS version 
-            deploymentSessionLogger.LogWarning("Meadow assemblies download failed, using local copy");
+            await _deploymentSessionLogger.ReportDeviceMessage(e.source, e.message);
         }
-
-        await helper.DeployApp(meadowDeploymentArgs.AppPath, meadowDeploymentArgs.DebugPort > 0, lifetime, true);
-
-        return new MeadowDeploymentResult(DeploymentResultStatus.Success);
     }
-}
 
-class DeploymentSessionLogger(DeploymentSession deploymentSession) : Microsoft.Extensions.Logging.ILogger
-{
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
-        Func<TState, Exception?, string> formatter)
+    private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
     {
-        switch (logLevel)
+        var p = (uint)((e.completed / (double)e.total) * 100d);
+
+        if (_deploymentSessionLogger != null)
         {
-            case LogLevel.Trace:
-            case LogLevel.Debug:
-            case LogLevel.Information:
-                deploymentSession.OutputAdded(new OutputMessage(formatter(state, exception), DeployMessageKind.Info));
-                break;
-            case LogLevel.Warning:
-                deploymentSession.OutputAdded(new OutputMessage(formatter(state, exception),
-                    DeployMessageKind.Warning));
-                break;
-            case LogLevel.Error:
-            case LogLevel.Critical:
-                deploymentSession.OutputAdded(new OutputMessage(formatter(state, exception), DeployMessageKind.Error));
-                break;
-            case LogLevel.None:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
+            await _deploymentSessionLogger.ReportFileProgress(e.fileName, p);
         }
-    }
-
-    public bool IsEnabled(LogLevel logLevel)
-    {
-        return true;
-    }
-
-    public IDisposable BeginScope<TState>(TState state) where TState : notnull
-    {
-        return new Disposable.EmptyDisposable();
     }
 }
