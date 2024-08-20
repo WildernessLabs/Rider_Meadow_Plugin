@@ -13,4 +13,5 @@
         <configurationType implementation="com.jetbrains.rider.plugins.meadow.configurations.MeadowConfigurationType" />
     </extensions>
 
+    <idea-version since-build="242.0" until-build="243.*"/>
 </idea-plugin>
