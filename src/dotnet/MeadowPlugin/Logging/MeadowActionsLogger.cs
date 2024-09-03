@@ -49,24 +49,4 @@ internal class MeadowActionsLogger : Microsoft.Extensions.Logging.ILogger
     {
         return new Disposable.EmptyDisposable();
     }
-
-    internal async Task ReportDeviceMessage(string source, string message)
-    {
-        this.LogInformation($"{source}: {message}");
-    }
-
-    internal async Task ReportFileProgress(string fileName, uint percentage)
-    {
-        if (percentage > 0
-        && percentage > 99)
-        {
-            if (!previousFileName.Equals(fileName)
-            || !previousPercentage.Equals(percentage))
-            {
-                this.LogInformation($"{percentage}% of '{fileName}' Sent");
-                previousFileName = fileName;
-                previousPercentage = percentage;
-            }
-        }
-    }
 }
