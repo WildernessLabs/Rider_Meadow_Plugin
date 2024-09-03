@@ -75,76 +75,82 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
     {
         _deploymentSessionLogger = new DeploymentSessionLogger(deploymentSession);
 
-        if (_meadowConnection != null)
+        return await Task.Run(async () =>
         {
-            _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-            _meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
-        }
-
-        _meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(meadowDeploymentArgs.Device.SerialPort);
-
-        if (_meadowConnection == null)
-        {
-            deploymentSession.OutputAdded(new OutputMessage(
-                "A device has not been selected. Please attach a device, then select it from the Device list.",
-                DeployMessageKind.Error));
-            return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-        }
-        else
-        {
-            _meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-            _meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
-
-            await _meadowConnection.WaitForMeadowAttach();
-
-            await _meadowConnection.RuntimeDisable();
-
-            var deviceInfo = await _meadowConnection.GetDeviceInfo(lifetime);
-            string osVersion = deviceInfo?.OsVersion;
-
-            var fileManager = new FileManager(null);
-            await fileManager.Refresh();
-
-            var collection = fileManager.Firmware["Meadow F7"];
-
-            var isDebugging = meadowDeploymentArgs.DebugPort > 0;
-
-            try
-            {
-                var packageManager = new PackageManager(fileManager);
-
-                var appPath = meadowDeploymentArgs.AppPath;
-                if (!File.Exists(appPath))
-                {
-                    deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
-                        DeployMessageKind.Error));
-                    return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-                }
-
-                if (!string.IsNullOrEmpty(appPath))
-                {
-                    _deploymentSessionLogger.LogInformation("Trimming...");
-                    await packageManager.TrimApplication(new System.IO.FileInfo(appPath), osVersion, isDebugging, cancellationToken: lifetime);
-
-                    var appFolder = Path.GetDirectoryName(appPath) ?? ".";
-                    _deploymentSessionLogger.LogInformation("Deploying...");
-                    await AppManager.DeployApplication(packageManager, _meadowConnection, osVersion, appFolder, isDebugging, false, _deploymentSessionLogger, lifetime);
-
-                    await _meadowConnection.RuntimeEnable();
-                }
-            }
-            catch (Exception e)
-            {
-                _deploymentSessionLogger.LogError(e.Message);
-                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-            }
-            finally
+            if (_meadowConnection != null)
             {
                 _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                _meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
             }
 
-            return new MeadowDeploymentResult(DeploymentResultStatus.Success);
-        }
+            _meadowConnection =
+                await MeadowConnectionManager.GetConnectionForRoute(meadowDeploymentArgs.Device.SerialPort);
+
+            if (_meadowConnection == null)
+            {
+                deploymentSession.OutputAdded(new OutputMessage(
+                    "A device has not been selected. Please attach a device, then select it from the Device list.",
+                    DeployMessageKind.Error));
+                return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+            }
+            else
+            {
+                _meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
+                _meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+
+                await _meadowConnection.WaitForMeadowAttach();
+
+                await _meadowConnection.RuntimeDisable();
+
+                var deviceInfo = await _meadowConnection.GetDeviceInfo(lifetime);
+                string osVersion = deviceInfo?.OsVersion;
+
+                var fileManager = new FileManager(null);
+                await fileManager.Refresh();
+
+                var collection = fileManager.Firmware["Meadow F7"];
+
+                var isDebugging = meadowDeploymentArgs.DebugPort > 0;
+
+                try
+                {
+                    var packageManager = new PackageManager(fileManager);
+
+                    var appPath = meadowDeploymentArgs.AppPath;
+                    if (!File.Exists(appPath))
+                    {
+                        deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
+                            DeployMessageKind.Error));
+                        return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+                    }
+
+                    if (!string.IsNullOrEmpty(appPath))
+                    {
+                        _deploymentSessionLogger.LogInformation("Trimming application binaries...");
+                        await packageManager.TrimApplication(new System.IO.FileInfo(appPath), osVersion, isDebugging,
+                            cancellationToken: lifetime);
+
+                        var appFolder = Path.GetDirectoryName(appPath) ?? ".";
+                        _deploymentSessionLogger.LogInformation("Deploying application...");
+                        await AppManager.DeployApplication(packageManager, _meadowConnection, osVersion, appFolder,
+                            isDebugging, false, _deploymentSessionLogger, lifetime);
+
+                        await _meadowConnection.RuntimeEnable();
+                    }
+                }
+                catch (Exception e)
+                {
+                    _deploymentSessionLogger.LogError(e.Message);
+                    return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+                }
+                finally
+                {
+                    _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
+                }
+
+                return new MeadowDeploymentResult(DeploymentResultStatus.Success);
+            }
+        });
     }
 
     private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)

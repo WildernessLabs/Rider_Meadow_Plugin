@@ -79,7 +79,7 @@ public class MeadowBackendHost
             // Debugger only returns when session is done
             if (isDebugging)
             {
-                _meadowActionsLogger.LogInformation("Debugging...");
+                _meadowActionsLogger.LogInformation("Debugging application...");
                 await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger, sessionLifetimeDef.Lifetime);
             }
 
