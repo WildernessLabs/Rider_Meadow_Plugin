@@ -4,17 +4,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Management" Version="7.0.2" />
-        <PackageReference Include="System.CodeDom" Version="7.0.0" />
-        <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.0" />
+        <PackageReference Include="System.Management" Version="5.0.0" />
+        <PackageReference Include="System.CodeDom" Version="5.0.0" />
+        <PackageReference Include="Microsoft.NETCore.Platforms" Version="5.0.0" />
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-        <PackageReference Include="Mono.Cecil" Version="0.11.5" />
-        <PackageReference Include="System.IO.Ports" Version="8.*" />
-        <PackageReference Include="System.Net.Http.Json" Version="8.*" />
-        <PackageReference Include="System.Text.Json" Version="8.*" />
-        <PackageReference Include="System.IO.Hashing" Version="8.*" />
-        <PackageReference Include="System.Text.Encodings.Web" Version="8.*" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,7 +21,7 @@
         <PackageReference Update="JetBrains.Rider.Rider.Backend" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\Meadow.CLI\Source\v2\Meadow.Tooling.Core\Meadow.Tooling.Core.csproj" />
-      <ProjectReference Include="..\..\..\..\Meadow.CLI\Source\v2\Meadow.HCom\Meadow.HCom.csproj" />
+      <ProjectReference Include="..\..\..\..\Meadow.CLI\Source\v2\Meadow.Tooling.Core\Meadow.Tooling.Core.Rider.csproj" />
+      <ProjectReference Include="..\..\..\..\Meadow.CLI\Source\v2\Meadow.HCom\Meadow.HCom.Rider.csproj" />
     </ItemGroup>
 </Project>
