@@ -11,12 +11,12 @@ using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using Meadow.CLI.Core.DeviceManagement;
-using Meadow.CLI.Core.Devices;
-using Meadow.CLI.Core.Internals.MeadowCommunication;
+using Meadow.CLI.Commands.DeviceManagement;
+using Meadow.Hcom;
 using MeadowPlugin.Deployment;
+using MeadowPlugin.Logging;
 using MeadowPlugin.Model;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using ILogger = JetBrains.Util.ILogger;
 
 namespace MeadowPlugin;
@@ -31,18 +31,31 @@ public class MeadowBackendHost
 
     private readonly Dictionary<string, AppRunSession> _runSessions = new();
 
+    IMeadowConnection? _meadowConnection;
+    private MeadowActionsLogger _meadowActionsLogger;
+
     public MeadowBackendHost(ISolution solution, Lifetime solutionLifetime)
     {
         _solutionLifetime = solutionLifetime;
         _meadowPluginModel = solution.GetProtocolSolution().GetMeadowPluginModel();
         _meadowPluginModel.GetSerialPorts.SetAsync(GetSerialPortsAsync);
+
+        _meadowActionsLogger = new MeadowActionsLogger();
     }
 
     private static async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, Unit _)
     {
         try
         {
-            return (await MeadowDeviceManager.GetSerialPorts()).AsList();
+            var ports = await MeadowConnectionManager.GetSerialPorts();
+            if (ports == null)
+            {
+                return EmptyList<string>.InstanceList.AsList();
+            }
+            else
+            {
+                return ports.AsList();
+            }
         }
         catch (Exception e)
         {
@@ -53,87 +66,42 @@ public class MeadowBackendHost
 
     public async Task RegisterAppSessionAsync(string serialPort, int debugPort)
     {
-        var meadowActionsLogger = new MeadowActionsLogger();
-        var device =
-            await MeadowDeviceManager.GetMeadowForSerialPort(serialPort, false, meadowActionsLogger);
-        if (device == null)
+        _meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(serialPort);
+
+        if (_meadowConnection != null)
         {
-            throw new ArgumentException(
-                "A device has not been selected. Please attach a device, then select it from the Device list.");
+            var model = new AppRunSessionModel();
+            var sessionLifetimeDef = _solutionLifetime.CreateNested();
+            model.Terminate.AdviseOnce(sessionLifetimeDef.Lifetime,
+                _ => { DropSessionForSerialPort(serialPort).NoAwait(); });
+
+            var isDebugging = debugPort > 0;
+
+            // Debugger only returns when session is done
+            if (isDebugging)
+            {
+                _meadowActionsLogger.LogInformation("Debugging application...");
+                await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger, sessionLifetimeDef.Lifetime);
+            }
+
+            var appRunSession = new AppRunSession(serialPort, _meadowConnection, model, sessionLifetimeDef);
+
+            _runSessions.Add(appRunSession.SerialPort, appRunSession);
+
+            await _solutionLifetime.StartMainUnguarded(() =>
+            {
+                _meadowPluginModel.RunSessions.Add(sessionLifetimeDef.Lifetime,
+                    KeyValuePair.Create(serialPort, model));
+            });
         }
-
-        var helper = new MeadowDeviceHelper(device, meadowActionsLogger);
-
-        var model = new AppRunSessionModel();
-        var sessionLifetimeDef = _solutionLifetime.CreateNested();
-        model.Terminate.AdviseOnce(sessionLifetimeDef.Lifetime,
-            _ => { DropSessionForSerialPort(serialPort).NoAwait(); });
-
-        if (debugPort > 0)
-        {
-            await helper.StartDebuggingSession(debugPort, sessionLifetimeDef.Lifetime);
-        }
-
-        var appRunSession = new AppRunSession(serialPort, helper, model, sessionLifetimeDef);
-
-        _runSessions.Add(appRunSession.SerialPort, appRunSession);
-
-        await _solutionLifetime.StartMainUnguarded(() =>
-        {
-            _meadowPluginModel.RunSessions.Add(sessionLifetimeDef.Lifetime, KeyValuePair.Create(serialPort, model));
-        });
     }
 
     public async Task DropSessionForSerialPort(string serialPort)
     {
         var appRunSession = _runSessions.TryGetValue(serialPort);
-        if (appRunSession == null) return;
+        if (appRunSession == null)
+            return;
         _runSessions.Remove(serialPort);
         await appRunSession.TerminateAsync();
-    }
-}
-
-internal class AppRunSession
-{
-    private readonly MeadowDeviceHelper _deviceHelper;
-    private readonly AppRunSessionModel _model;
-    private readonly LifetimeDefinition _lifetimeDefinition;
-
-    public AppRunSession(string serialPort, MeadowDeviceHelper deviceHelper, AppRunSessionModel model,
-        LifetimeDefinition lifetimeDefinition)
-    {
-        SerialPort = serialPort;
-        _deviceHelper = deviceHelper;
-        _model = model;
-        _lifetimeDefinition = lifetimeDefinition;
-        deviceHelper.MeadowDevice.DataProcessor.OnReceiveData += OnReceiveData;
-
-        _lifetimeDefinition.Lifetime.OnTermination(() =>
-        {
-            deviceHelper.MeadowDevice.DataProcessor.OnReceiveData -= OnReceiveData;
-        });
-    }
-
-    public string SerialPort { get; }
-
-    private void OnReceiveData(object? sender, MeadowMessageEventArgs e)
-    {
-        if (e.MessageType != MeadowMessageType.AppOutput) return;
-        _model.OutputReceived(e.Message);
-    }
-
-    public async Task TerminateAsync()
-    {
-        _lifetimeDefinition.Terminate();
-        _deviceHelper.Dispose();
-        await TryDisableMono();
-    }
-
-    private async Task TryDisableMono()
-    {
-        var device = await MeadowDeviceManager.GetMeadowForSerialPort(SerialPort, false);
-        if (device == null) return;
-        using var helper = new MeadowDeviceHelper(device, NullLogger.Instance);
-        await helper.MonoDisable();
     }
 }
