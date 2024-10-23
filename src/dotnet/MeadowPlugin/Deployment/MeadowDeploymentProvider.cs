@@ -161,7 +161,8 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
         }
     }
 
-    private async void MeadowConnection_DeploymentProgress(object sender, (string fileName, long completed, long total) e)
+    private async void MeadowConnection_DeploymentProgress(object sender,
+        (string fileName, long completed, long total) e)
     {
         var p = (uint)((e.completed / (double)e.total) * 100d);
 

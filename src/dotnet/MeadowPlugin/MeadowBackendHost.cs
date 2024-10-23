@@ -31,7 +31,7 @@ public class MeadowBackendHost
 
     private readonly Dictionary<string, AppRunSession> _runSessions = new();
 
-    IMeadowConnection? _meadowConnection = null;
+    IMeadowConnection? _meadowConnection;
     private MeadowActionsLogger _meadowActionsLogger;
 
     public MeadowBackendHost(ISolution solution, Lifetime solutionLifetime)
@@ -42,6 +42,7 @@ public class MeadowBackendHost
 
         _meadowActionsLogger = new MeadowActionsLogger();
     }
+
     private static async Task<List<string>> GetSerialPortsAsync(Lifetime lifetime, Unit _)
     {
         try
@@ -89,7 +90,8 @@ public class MeadowBackendHost
 
             await _solutionLifetime.StartMainUnguarded(() =>
             {
-                _meadowPluginModel.RunSessions.Add(sessionLifetimeDef.Lifetime, KeyValuePair.Create(serialPort, model));
+                _meadowPluginModel.RunSessions.Add(sessionLifetimeDef.Lifetime,
+                    KeyValuePair.Create(serialPort, model));
             });
         }
     }
