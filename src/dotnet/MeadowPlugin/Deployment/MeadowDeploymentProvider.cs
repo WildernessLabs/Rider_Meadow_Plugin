@@ -24,11 +24,21 @@ using ILogger = JetBrains.Util.ILogger;
 namespace MeadowPlugin.Deployment;
 
 [SolutionComponent]
-public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDeploymentProvider
+public class MeadowDeploymentProvider : IDeploymentProvider
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
-    private IMeadowConnection? _meadowConnection;
+    private IMeadowConnection _meadowConnection;
     private DeploymentSessionLogger? _deploymentSessionLogger;
+    private readonly MeadowBackendHost _meadowBackendHost;
+
+    private readonly SettingsManager _settingsManager = new SettingsManager();
+    private readonly MeadowConnectionManager _connectionManager;
+
+    public MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost)
+    {
+        _meadowBackendHost = meadowBackendHost;
+        _connectionManager = new MeadowConnectionManager(_settingsManager);
+    }
 
     public bool IsApplicable(DeploymentArgsBase args)
     {
@@ -47,12 +57,12 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
             MeadowDeploymentResult result;
             try
             {
-                await meadowBackendHost.DropSessionForSerialPort(meadowDeploymentArgs.Device.SerialPort);
+                await _meadowBackendHost.DropSessionForSerialPort(meadowDeploymentArgs.Device.SerialPort);
                 result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
                 if (result.Status == DeploymentResultStatus.Success)
                 {
-                    await meadowBackendHost.RegisterAppSessionAsync(meadowDeploymentArgs.Device.SerialPort,
-                        meadowDeploymentArgs.DebugPort);
+                    await _meadowBackendHost.RegisterAppSessionAsync(meadowDeploymentArgs.Device.SerialPort,
+                        meadowDeploymentArgs.DebugPort, _meadowConnection);
                 }
             }
             catch (TaskCanceledException)
@@ -81,10 +91,10 @@ public class MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost) : IDe
             {
                 _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
                 _meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
+                _meadowConnection = null;
             }
 
-            _meadowConnection =
-                await MeadowConnectionManager.GetConnectionForRoute(meadowDeploymentArgs.Device.SerialPort);
+            _meadowConnection = _connectionManager.GetConnectionForRoute(meadowDeploymentArgs.Device.SerialPort);
 
             if (_meadowConnection == null)
             {

@@ -11,6 +11,7 @@ using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
+using Meadow.CLI;
 using Meadow.CLI.Commands.DeviceManagement;
 using Meadow.Hcom;
 using MeadowPlugin.Deployment;
@@ -64,9 +65,9 @@ public class MeadowBackendHost
         }
     }
 
-    public async Task RegisterAppSessionAsync(string serialPort, int debugPort)
+    public async Task RegisterAppSessionAsync(string serialPort, int debugPort, IMeadowConnection meadowConnection)
     {
-        _meadowConnection = await MeadowConnectionManager.GetConnectionForRoute(serialPort);
+        _meadowConnection = meadowConnection;
 
         if (_meadowConnection != null)
         {
