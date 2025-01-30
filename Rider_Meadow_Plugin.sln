@@ -12,15 +12,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Externals", "Externals", "{02D77B11-50B0-463C-9EA7-D455985E3614}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Tooling.Core.Rider", "..\Meadow.CLI\Source\v2\Meadow.Tooling.Core\Meadow.Tooling.Core.Rider.csproj", "{BBA551B1-A516-4C6F-9D9C-5C7C6C6A49D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Tooling.Core.Rider", "..\Meadow.CLI\Source\Meadow.Tooling.Core\Meadow.Tooling.Core.Rider.csproj", "{BBA551B1-A516-4C6F-9D9C-5C7C6C6A49D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.HCom.Rider", "..\Meadow.CLI\Source\v2\Meadow.HCom\Meadow.HCom.Rider.csproj", "{1E60FA61-0C5D-4064-9E2D-53A78C0CE268}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.HCom.Rider", "..\Meadow.CLI\Source\Meadow.HCom\Meadow.HCom.Rider.csproj", "{1E60FA61-0C5D-4064-9E2D-53A78C0CE268}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Linker.Rider", "..\Meadow.CLI\Source\v2\Meadow.Linker\Meadow.Linker.Rider.csproj", "{1705D857-B29B-4F3D-BABF-EE82F1150141}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Linker.Rider", "..\Meadow.CLI\Source\Meadow.Linker\Meadow.Linker.Rider.csproj", "{1705D857-B29B-4F3D-BABF-EE82F1150141}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SoftwareManager.Rider", "..\Meadow.CLI\Source\v2\Meadow.SoftwareManager\Meadow.SoftwareManager.Rider.csproj", "{C746F73D-037C-4D68-8ED2-69533CA91B1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SoftwareManager.Rider", "..\Meadow.CLI\Source\Meadow.SoftwareManager\Meadow.SoftwareManager.Rider.csproj", "{C746F73D-037C-4D68-8ED2-69533CA91B1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Cloud.Client.Rider", "..\Meadow.CLI\Source\v2\Meadow.Cloud.Client\Meadow.Cloud.Client.Rider.csproj", "{0F670C96-FDE7-4AFF-937D-CCF7B629901F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Cloud.Client.Rider", "..\Meadow.CLI\Source\Meadow.Cloud.Client\Meadow.Cloud.Client.Rider.csproj", "{0F670C96-FDE7-4AFF-937D-CCF7B629901F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
