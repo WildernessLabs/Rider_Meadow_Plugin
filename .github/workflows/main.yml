@@ -44,7 +44,16 @@ jobs:
           path: Meadow.CLI
           ref: develop
 
-      - name: Checkout Meadow.Contracts side-by-side
+      - if: ${{ github.ref != 'refs/heads/main' }}
+        name: Checkout Meadow.Contracts side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Contracts
+          path: Meadow.Contracts
+          ref: develop
+
+      - if: ${{ github.ref == 'refs/heads/main' }}
+        name: Checkout Meadow.Contracts side-by-side
         uses: actions/checkout@v4
         with:
           repository: WildernessLabs/Meadow.Contracts
