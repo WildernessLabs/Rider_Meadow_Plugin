@@ -160,12 +160,14 @@ tasks {
             into("${rootProject.name}/net-v2")
             exclude(
                 "**/*/System.Drawing.Common.dll",
+                "**/*/System.Management.dll",
                 "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
                 "Microsoft.Extensions.DependencyInjection.dll",
                 "Microsoft.Extensions.Logging.Abstractions.dll",
                 "Microsoft.Extensions.Logging.dll",
                 "Microsoft.Extensions.Options.dll",
                 "Microsoft.Extensions.Primitives.dll",
+                "Microsoft.IdentityModel.Abstractions.dll",
                 "Microsoft.IdentityModel.JsonWebTokens.dll",
                 "Microsoft.IdentityModel.Logging.dll",
                 "Microsoft.IdentityModel.Tokens.dll",
@@ -182,6 +184,7 @@ tasks {
                 "System.IO.Ports.dll",
                 "System.Security.Cryptography.ProtectedData.dll",
                 "System.Security.Permissions.dll",
+                "System.Text.Json.dll",
                 "System.Windows.Extensions.dll",
                 "YamlDotNet.dll"
             )

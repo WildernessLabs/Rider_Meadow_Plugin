@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using JetBrains.Application.Parts;
 using JetBrains.Collections.Viewable;
 using JetBrains.Core;
 using JetBrains.Lifetimes;
@@ -22,7 +23,7 @@ using ILogger = JetBrains.Util.ILogger;
 
 namespace MeadowPlugin;
 
-[SolutionComponent]
+[SolutionComponent(Instantiation.DemandAnyThreadUnsafe)]
 public class MeadowBackendHost
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Application.Parts;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.Rd.Base;
@@ -23,7 +24,7 @@ using ILogger = JetBrains.Util.ILogger;
 
 namespace MeadowPlugin.Deployment;
 
-[SolutionComponent]
+[SolutionComponent(Instantiation.DemandAnyThreadUnsafe)]
 public class MeadowDeploymentProvider : IDeploymentProvider
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();

@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.9.24"
-rdGen = "2024.1.1"
+rdGen = "2024.3.1"
 
 [libraries]
 kotlinStdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
