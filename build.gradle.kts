@@ -49,7 +49,7 @@ val riderSdkPath by lazy {
 
 dependencies {
     intellijPlatform {
-        rider(riderSdkVersion)
+        rider(riderSdkVersion, useInstaller = false)
         jetbrainsRuntime()
         instrumentationTools()
         bundledLibrary("lib/testFramework.jar")
