@@ -109,17 +109,21 @@ public class MeadowDeploymentProvider : IDeploymentProvider
                 _meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
                 _meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
 
-                await _meadowConnection.WaitForMeadowAttach();
+                await _meadowConnection.WaitForMeadowAttach(lifetime);
 
-                await _meadowConnection.RuntimeDisable();
+                _deploymentSessionLogger.LogInformation("Checking runtime state...");
+                if (await _meadowConnection.IsRuntimeEnabled(lifetime))
+                {
+                    _deploymentSessionLogger.LogInformation("Disabling runtime...");
+                    await _meadowConnection.RuntimeDisable(lifetime);
+                }
 
                 var deviceInfo = await _meadowConnection.GetDeviceInfo(lifetime);
                 string osVersion = deviceInfo?.OsVersion;
+                _deploymentSessionLogger.LogInformation($"Found Meadow with OS v{osVersion}");
 
                 var fileManager = new FileManager(null);
                 await fileManager.Refresh();
-
-                var collection = fileManager.Firmware["Meadow F7"];
 
                 var isDebugging = meadowDeploymentArgs.DebugPort > 0;
 
@@ -130,8 +134,7 @@ public class MeadowDeploymentProvider : IDeploymentProvider
                     var appPath = meadowDeploymentArgs.AppPath;
                     if (!File.Exists(appPath))
                     {
-                        deploymentSession.OutputAdded(new OutputMessage($"Deployment path '{appPath}' does not exist.",
-                            DeployMessageKind.Error));
+                        _deploymentSessionLogger.LogInformation($"Deployment path '{appPath}' does not exist.");
                         return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
                     }
 
@@ -146,7 +149,9 @@ public class MeadowDeploymentProvider : IDeploymentProvider
                         await AppManager.DeployApplication(packageManager, _meadowConnection, osVersion, appFolder,
                             isDebugging, false, _deploymentSessionLogger, lifetime);
 
-                        await _meadowConnection.RuntimeEnable();
+                        await Task.Delay(1500);
+
+                        await _meadowConnection.RuntimeEnable(lifetime);
                     }
                 }
                 catch (Exception e)
