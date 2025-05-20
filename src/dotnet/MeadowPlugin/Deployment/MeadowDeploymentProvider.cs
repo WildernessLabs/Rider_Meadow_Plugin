@@ -142,7 +142,7 @@ public class MeadowDeploymentProvider : IDeploymentProvider
                     {
                         _deploymentSessionLogger.LogInformation("Trimming application binaries...");
                         await packageManager.TrimApplication(new System.IO.FileInfo(appPath), osVersion, isDebugging,
-                            cancellationToken: lifetime);
+                            null, _deploymentSessionLogger, lifetime);
 
                         var appFolder = Path.GetDirectoryName(appPath) ?? ".";
                         _deploymentSessionLogger.LogInformation("Deploying application...");
