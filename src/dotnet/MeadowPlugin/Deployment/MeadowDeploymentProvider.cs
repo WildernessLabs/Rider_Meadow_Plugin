@@ -140,7 +140,6 @@ public class MeadowDeploymentProvider : IDeploymentProvider
 
                     if (!string.IsNullOrEmpty(appPath))
                     {
-                        _deploymentSessionLogger.LogInformation("Trimming application binaries...");
                         await packageManager.TrimApplication(new System.IO.FileInfo(appPath), osVersion, isDebugging,
                             null, _deploymentSessionLogger, lifetime);
 
