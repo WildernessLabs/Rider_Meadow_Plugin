@@ -44,21 +44,12 @@ jobs:
           path: Meadow.CLI
           ref: develop
 
-      - if: ${{ github.ref != 'refs/heads/main' }}
-        name: Checkout Meadow.Contracts side-by-side
+      - name: Checkout Meadow.Contracts side-by-side
         uses: actions/checkout@v4
         with:
           repository: WildernessLabs/Meadow.Contracts
           path: Meadow.Contracts
           ref: develop
-
-      - if: ${{ github.ref == 'refs/heads/main' }}
-        name: Checkout Meadow.Contracts side-by-side
-        uses: actions/checkout@v4
-        with:
-          repository: WildernessLabs/Meadow.Contracts
-          path: Meadow.Contracts
-          ref: main
 
       - if: matrix.image == 'ubuntu-22.04'
         name: Free disk space
@@ -88,21 +79,21 @@ jobs:
         run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} buildPlugin
         working-directory: ./main
 
-      - name: Unpack distribution # for the purpose of uploading. Only on Linux to avoid zip name clash
-        if: matrix.image == 'ubuntu-22.04'
+      - if: matrix.image == 'ubuntu-22.04' # for the purpose of uploading. Only on Linux to avoid zip name clash
+        name: Unpack distribution 
         shell: pwsh
         run: main/scripts/Unpack-Distribution.ps1
-
-      - name: Read pluginVersion from gradle.properties
-        if: matrix.image == 'ubuntu-22.04'
+      
+      - if: matrix.image == 'ubuntu-22.04'
+        name: Read pluginVersion from gradle.properties
         id: read_version
         run: |
           pluginVersion=$(sed -n 's/^pluginVersion=\(.*\)/\1/p' main/gradle.properties)
           echo "pluginVersion=$pluginVersion"
           echo "plugin_version=$pluginVersion" >> $GITHUB_ENV
 
-      - name: Upload the artifact
-        if: matrix.image == 'ubuntu-22.04' # Only on Linux to avoid zip name clash
+      - if: matrix.image == 'ubuntu-22.04' # Only on Linux to avoid zip name clash
+        name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
           name: rider-meadow-plugin-${{ env.plugin_version }}
