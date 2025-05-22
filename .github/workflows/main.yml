@@ -51,7 +51,7 @@ jobs:
           path: Meadow.Contracts
           ref: develop
 
-      - if: matrix.image == 'windows-latest'
+      - if: matrix.image == 'ubuntu-latest'
         name: Free disk space
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
