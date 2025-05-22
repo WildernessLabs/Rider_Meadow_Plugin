@@ -79,21 +79,22 @@ public class MeadowBackendHost
 
             var isDebugging = debugPort > 0;
 
-            // Debugger only returns when session is done
-            if (isDebugging)
-            {
-                _meadowActionsLogger.LogInformation("Debugging application...");
-                await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger, sessionLifetimeDef.Lifetime);
-            }
-
             var appRunSession = new AppRunSession(serialPort, _meadowConnection, model, sessionLifetimeDef);
 
             _runSessions.Add(appRunSession.SerialPort, appRunSession);
 
-            await _solutionLifetime.StartMainUnguarded(() =>
+            await _solutionLifetime.StartMainUnguarded(async () =>
             {
                 _meadowPluginModel.RunSessions.Add(sessionLifetimeDef.Lifetime,
                     KeyValuePair.Create(serialPort, model));
+
+                // Debugger only returns when session is done
+                if (isDebugging)
+                {
+                    _meadowActionsLogger.LogInformation("Debugging application...");
+                    await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger,
+                        sessionLifetimeDef.Lifetime);
+                }
             });
         }
     }
