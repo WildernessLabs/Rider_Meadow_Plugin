@@ -79,12 +79,12 @@ jobs:
         run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} buildPlugin
         working-directory: ./main
 
-      - if: matrix.image == 'windows-latest' # for the purpose of uploading. Only on Linux to avoid zip name clash
+      - if: matrix.image == 'ubuntu-latest' # for the purpose of uploading. Only on Linux to avoid zip name clash
         name: Unpack distribution 
         shell: pwsh
         run: main/scripts/Unpack-Distribution.ps1
       
-      - if: matrix.image == 'windows-latest'
+      - if: matrix.image == 'ubuntu-latest'
         name: Read pluginVersion from gradle.properties
         id: read_version
         run: |
@@ -92,7 +92,7 @@ jobs:
           echo "pluginVersion=$pluginVersion"
           echo "plugin_version=$pluginVersion" >> $GITHUB_ENV
 
-      - if: matrix.image == 'windows-latest' # Only on Linux to avoid zip name clash
+      - if: matrix.image == 'ubuntu-latest' # Only on Linux to avoid zip name clash
         name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
@@ -100,7 +100,7 @@ jobs:
           path: main/build/distributions/unpacked
 
       # Publish
-      - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && matrix.image == 'windows-latest' }}
+      - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && matrix.image == 'ubuntu-latest' }}
         name: Publish
         shell: pwsh
         run: main/scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
