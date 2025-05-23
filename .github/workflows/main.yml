@@ -87,10 +87,14 @@ jobs:
       - if: matrix.image == 'windows-latest'
         name: Read pluginVersion from gradle.properties
         id: read_version
+        shell: pwsh
         run: |
-          pluginVersion=$(sed -n 's/^pluginVersion=\(.*\)/\1/p' main/gradle.properties)
+          $pluginVersion = Select-String -Path "gradle.properties" -Pattern "^pluginVersion=" | ForEach-Object {
+            $_.Line -replace "^pluginVersion=", ""
+          }
           echo "pluginVersion=$pluginVersion"
-          echo "plugin_version=$pluginVersion" >> $GITHUB_ENV
+          echo "plugin_version=$pluginVersion" | Out-File -FilePath $env:GITHUB_ENV -Append
+        working-directory: ./main
 
       - if: matrix.image == 'windows-latest' # Only on Linux to avoid zip name clash
         name: Upload the artifact
