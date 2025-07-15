@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Ports;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using JetBrains.Application.Parts;
 using JetBrains.Collections.Viewable;
@@ -12,7 +16,6 @@ using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using Meadow.CLI;
 using Meadow.CLI.Commands.DeviceManagement;
 using Meadow.Hcom;
 using MeadowPlugin.Deployment;
@@ -35,6 +38,25 @@ public class MeadowBackendHost
 
     IMeadowConnection? _meadowConnection;
     private MeadowActionsLogger _meadowActionsLogger;
+
+    static MeadowBackendHost()
+    {
+        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+        {
+            NativeLibrary.SetDllImportResolver(typeof(SerialPort).Assembly,
+                (libraryName, _, _) =>
+                {
+                    var probe = Path.Combine(
+                        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
+                        "runtimes",
+                        $"{(OperatingSystem.IsLinux() ? "linux" : "osx")}-{RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()}",
+                        "native",
+                        $"{libraryName}{(OperatingSystem.IsLinux() ? ".so" : ".dylib")}"
+                    );
+                    return File.Exists(probe) ? NativeLibrary.Load(probe) : nint.Zero;
+                });
+        }
+    }
 
     public MeadowBackendHost(ISolution solution, Lifetime solutionLifetime)
     {
