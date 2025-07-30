@@ -115,7 +115,7 @@ public class MeadowBackendHost
                 {
                     _meadowActionsLogger.LogInformation("Debugging application...");
                     await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger,
-                        sessionLifetimeDef.Lifetime);
+                        sessionLifetimeDef.Lifetime, "Rider");
                 }
             });
         }
