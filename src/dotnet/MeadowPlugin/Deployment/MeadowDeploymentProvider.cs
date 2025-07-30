@@ -95,7 +95,7 @@ public class MeadowDeploymentProvider : IDeploymentProvider
                 _meadowConnection = null;
             }
 
-            _meadowConnection = _connectionManager.GetConnection(meadowDeploymentArgs.Device.SerialPort);
+            _meadowConnection = await _connectionManager.GetConnection(meadowDeploymentArgs.Device.SerialPort);
 
             if (_meadowConnection == null)
             {
