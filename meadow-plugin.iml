@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module relativePaths="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output/>
+    <orderEntry type="inheritedJdk"/>
+    <content url="file://$MODULE_DIR$/">
+      <sourceFolder url="file://$MODULE_DIR$/src/rider/generated/kotlin" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/src/rider/main/kotlin" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/src/rider/main/resources" type="java-resource"/>
+      <excludeFolder url="file://$MODULE_DIR$/.gradle"/>
+      <excludeFolder url="file://$MODULE_DIR$/build"/>
+      <excludeFolder url="file://$MODULE_DIR$/.intellijPlatform"/>
+    </content>
+    <orderEntry type="sourceFolder" forTests="false"/>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/platform-loader.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/util-8.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/util.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/app-client.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/util_rt.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/product.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/opentelemetry.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/app.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/product-client.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/lib-client.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/stats.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/jps-model.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/external-system-rt.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/rd.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/bouncy-castle.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/protobuf.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/forms_rt.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/lib.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/externalProcess-rt.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/groovy.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/annotations.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/jsch-agent.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/junit4.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/kotlin-test.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/nio-fs.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/trove.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.ide.startup.importSettings.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.libraries.ktor.client.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.libraries.microba.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.notebooks.ui.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.clouds.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.collaborationTools.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.coverage.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.coverage.agent.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.dap.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.execution.dashboard.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.execution.serviceView.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.experiment.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.ide.newUiOnboarding.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.images.copyright.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.kernel.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.kernel.backend.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.lvcs.impl.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.ml.embeddings.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.navbar.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.navbar.backend.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.navbar.frontend.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.navbar.monolith.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.settings.local.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.smRunner.vcs.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.vcs.dvcs.impl.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.vcs.impl.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.vcs.log.impl.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.platform.whatsNew.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.profiler.asyncOne.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.profiler.common.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.profiler.ultimate.ideaAsyncProfiler.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.customization.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.customization.backend.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.navbar.backend.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.newUiOnboarding.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.newUiOnboarding.git.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.rider.nuget.credentials.providers.vsts.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.smart.update.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/modules/intellij.xml.xmlbeans.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/transforms-4/815be81db9712eba9b7e48bb34fd3259/transformed/riderRD-2024.2/lib/testFramework.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar:///Users/dominique/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/152ea56b3a72f655d4fd677fc0ef2596c3dd5e6e/opentest4j-1.3.0.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES>
+          <root url="jar:///Users/dominique/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/afb8ff23cffb021c56f333953aebfe6e8818568e/opentest4j-1.3.0-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+  <component name="ModuleRootManager"/>
+</module>
