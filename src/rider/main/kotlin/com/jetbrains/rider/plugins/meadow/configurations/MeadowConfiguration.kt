@@ -7,6 +7,7 @@ import com.jetbrains.rider.debugger.IRiderDebuggable
 import com.jetbrains.rider.plugins.meadow.devices.MeadowDevicesProvider
 import com.jetbrains.rider.run.configurations.IProjectBasedRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderRunConfiguration
+import com.intellij.internal.statistic.eventLog.events.EventPair
 import com.jetbrains.rider.run.devices.DevicesConfiguration
 import com.jetbrains.rider.run.devices.DevicesProvider
 import org.jdom.Element
@@ -40,4 +41,8 @@ class MeadowConfiguration(
     override fun setProjectFilePath(path: String) {
         parameters.projectFilePath = path
     }
+
+    // Required by updated RiderRunConfiguration API (usage data collection)
+    // Return empty list for now; extend later with real usage metrics.
+    override fun getAdditionalUsageData(): List<EventPair<*>> = emptyList()
 }

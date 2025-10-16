@@ -9,6 +9,7 @@ import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
 import com.jetbrains.rider.plugins.meadow.model.meadowPluginModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.devices.*
+import com.intellij.internal.statistic.eventLog.events.EventPair
 
 class MeadowDevicesProvider(private val project: Project) : DevicesProvider {
     override fun checkCompatibility(device: Device): CompatibilityProblem? {
@@ -29,7 +30,12 @@ class MeadowDevicesProvider(private val project: Project) : DevicesProvider {
     }
 }
 
-object MeadowDeviceKind : DeviceKind(MeadowBundle.message("meadow.os.message"), MeadowBundle.message("meadow.os.category.message")) {
+// Newer Rider DeviceKind API expects an explicit category name parameter
+object MeadowDeviceKind : DeviceKind(
+    MeadowBundle.message("meadow.os.message"),
+    MeadowBundle.message("meadow.os.category.message"),
+    MeadowBundle.message("meadow.os.category.message") // using same bundle key; adjust if a distinct category name is needed
+) {
     override fun getMissingDevicesAction(): AnAction =  NoDeviceAction(MeadowBundle.message("meadow.missing.device.message"), AllIcons.General.Warning)
 }
 
