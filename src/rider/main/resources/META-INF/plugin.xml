@@ -4,9 +4,10 @@
     <name>Meadow Rider</name>
     <vendor>Wilderness Labs</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.rider</depends>
-    <depends><module name="intellij.platform.dap" /></depends>
+    <dependencies>
+        <plugin id="com.intellij.modules.rider"/>
+        <module name="intellij.platform.dap"/>
+    </dependencies>
 
     <resource-bundle>messages.MeadowBundle</resource-bundle>
 

@@ -1,7 +1,6 @@
 package com.jetbrains.rider.plugins.meadow.configurations
 
 import com.intellij.execution.configurations.ConfigurationFactory
-import com.intellij.execution.runners.RunConfigurationWithSuppressedDefaultRunAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.intellij.platform.dap.DapLaunchArgumentsProvider
@@ -24,7 +23,7 @@ class MeadowConfiguration(
     val parameters: MeadowConfigurationParameters
 ) : RiderRunConfiguration(name, project, factory, { MeadowConfigurationEditor(it) }, MeadowExecutorFactory(parameters)),
     DevicesConfiguration, IProjectBasedRunConfiguration,
-    DapLaunchArgumentsProvider, RunConfigurationWithSuppressedDefaultRunAction {
+    DapLaunchArgumentsProvider {
 
     companion object {
         private const val PROJECT_PATH = "PROJECT_PATH"

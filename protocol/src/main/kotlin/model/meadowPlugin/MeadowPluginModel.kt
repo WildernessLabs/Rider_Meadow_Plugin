@@ -35,6 +35,7 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
 
     init {
         call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
+        call("dropSessionForPort", PredefinedType.string, PredefinedType.void).async
         map("runSessions", PredefinedType.string, AppRunSessionModel).async
         sink("appOutput", AppOutput)
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
