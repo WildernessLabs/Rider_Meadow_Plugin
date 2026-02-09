@@ -6,11 +6,19 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.rider</depends>
+    <depends><module name="intellij.platform.dap" /></depends>
 
     <resource-bundle>messages.MeadowBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.jetbrains.rider.plugins.meadow.configurations.MeadowConfigurationType" />
+
+        <platform.dap.debugAdapterSupportProvider
+            implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowDebugAdapterSupportProvider" />
+        <xdebugger.breakpointType
+            implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowLineBreakpointType" />
+        <xdebugger.breakpointType
+            implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowExceptionBreakpointType" />
     </extensions>
 
     <idea-version since-build="251" until-build="251.*"/>

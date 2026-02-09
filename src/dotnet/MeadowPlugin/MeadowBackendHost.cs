@@ -63,6 +63,11 @@ public class MeadowBackendHost
         _solutionLifetime = solutionLifetime;
         _meadowPluginModel = solution.GetProtocolSolution().GetMeadowPluginModel();
         _meadowPluginModel.GetSerialPorts.SetAsync(GetSerialPortsAsync);
+        _meadowPluginModel.DropSessionForPort.SetAsync(async (lifetime, port) =>
+        {
+            await DropSessionForSerialPort(port);
+            return Unit.Instance;
+        });
 
         _meadowActionsLogger = new MeadowActionsLogger();
     }
