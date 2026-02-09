@@ -37,7 +37,7 @@ val dotNetPluginId: String by project
 val dotNetSrcDir = File(projectDir, "src/dotnet")
 val dotNetProjectPath = File("$dotNetSrcDir/$dotNetPluginId/$dotNetPluginId.csproj")
 
-val dapAdapterSourceDir = File(projectDir.parentFile, "VS_Win_Meadow_Extension/VS_Meadow_Extension/VS_Meadow_Extension.2022/DapAdapter")
+val dapAdapterSourceDir = File(projectDir.parentFile, "Meadow.Debugging.Host/bin/${buildConfiguration}/net8.0")
 val dapAdapterDestDir = File(projectDir, "src/rider/resources/DapAdapter")
 
 version = pluginVersion
