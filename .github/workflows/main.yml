@@ -28,16 +28,7 @@ jobs:
         with:
           path: main
 
-      - if: ${{ github.ref == 'refs/heads/main' }}
-        name: Checkout Meadow.CLI side-by-side
-        uses: actions/checkout@v4
-        with:
-          repository: WildernessLabs/Meadow.CLI
-          path: Meadow.CLI
-          ref: main
-
-      - if: ${{ github.ref != 'refs/heads/main' }}
-        name: Checkout Meadow.CLI side-by-side
+      - name: Checkout Meadow.CLI side-by-side
         uses: actions/checkout@v4
         with:
           repository: WildernessLabs/Meadow.CLI
@@ -50,6 +41,40 @@ jobs:
           repository: WildernessLabs/Meadow.Contracts
           path: Meadow.Contracts
           ref: develop
+      
+      - name: Checkout Meadow.Units side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Units
+          path: Meadow.Units
+          ref: develop
+
+      - name: Checkout Meadow.Logging side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Logging
+          path: Meadow.Logging
+          ref: develop
+
+      - name: Checkout Meadow.Debugging side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Debugging
+          path: Meadow.Debugging
+          ref: main
+
+      - name: Install FallBack Sources
+        run: |
+          nuget install Microsoft.SymbolStore -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
+        # May not be needed for now, but keeping it around nuget install Microsoft.FileFormats -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
+
+      
+      # Build Meadow.Debugging (copies DAP files to sibling extension repos)
+      - name: Restore Meadow.Debugging dependencies
+        run: dotnet restore Meadow.Debugging/Meadow.Debugging.sln
+
+      - name: Build Meadow.Debugging
+        run: dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Release --no-restore
 
       - if: matrix.image == 'ubuntu-latest'
         name: Free disk space
