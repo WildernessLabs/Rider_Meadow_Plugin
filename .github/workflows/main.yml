@@ -70,11 +70,10 @@ jobs:
 
       
       # Build Meadow.Debugging (copies DAP files to sibling extension repos)
-      - name: Restore Meadow.Debugging dependencies
-        run: dotnet restore Meadow.Debugging/Meadow.Debugging.sln
-
       - name: Build Meadow.Debugging
-        run: dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Release --no-restore
+      run: |
+        dotnet restore Meadow.Debugging/Meadow.Debugging.sln
+        dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Debug --no-restore -p:TargetIDE=rider
 
       - if: matrix.image == 'ubuntu-latest'
         name: Free disk space
