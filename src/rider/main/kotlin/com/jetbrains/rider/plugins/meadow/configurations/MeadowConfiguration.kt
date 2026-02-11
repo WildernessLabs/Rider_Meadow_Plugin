@@ -65,7 +65,7 @@ class MeadowConfiguration(
         tempFile.writeText("OutputPath=${outputDir}${File.separator}\nAssemblyName=${assemblyName}\n")
         tempFile.deleteOnExit()
 
-        val debugPort = MeadowDebugProfileState.getNextDebuggingPort()
+        val debugPort = MeadowDebugPortProvider.getNextDebuggingPort()
 
         return mapOf(
             "projectPath" to executable.projectFilePath,
