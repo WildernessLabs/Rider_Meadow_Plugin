@@ -58,7 +58,7 @@ public class MeadowDeploymentProvider : IDeploymentProvider
             MeadowDeploymentResult result;
             try
             {
-                await _meadowBackendHost.DropSessionForSerialPort(meadowDeploymentArgs.Device.SerialPort);
+                // Session cleanup now handled by DAP adapter — DropSessionForSerialPort removed
                 result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
                 if (result.Status == DeploymentResultStatus.Success)
                 {
