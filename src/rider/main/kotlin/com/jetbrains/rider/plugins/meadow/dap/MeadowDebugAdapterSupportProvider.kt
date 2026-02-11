@@ -45,7 +45,7 @@ class MeadowDebugAdapterSupportProvider : DebugAdapterSupportProvider<MeadowDebu
                 val pluginPath = PluginManagerCore.getPlugin(
                     PluginId.getId("com.wildernesslabs.rider.meadow")
                 )!!.pluginPath
-                val adapterExe = pluginPath.resolve("DapAdapter/vscode-meadow.exe")
+                val adapterExe = pluginPath.resolve("DapAdapter/meadow-debugging.exe")
 
                 val commandLine = GeneralCommandLine(adapterExe.toString())
                 return CommandLineDebugAdapterHandle(commandLine)
