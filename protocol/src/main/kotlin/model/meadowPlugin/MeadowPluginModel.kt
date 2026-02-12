@@ -33,6 +33,10 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
         call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
         call("dropSessionForPort", PredefinedType.string, PredefinedType.void).async
         signal("progressUpdate", ProgressUpdate)
+        // DAP progress event signals (fired from DAP event interceptor)
+        signal("showProgressNotification", PredefinedType.string)
+        signal("updateProgressNotification", PredefinedType.string)
+        signal("hideProgressNotification", PredefinedType.string)
         // runSessions + appOutput removed — all device output handled by DAP adapter
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
         setting(CSharp50Generator.Namespace, "MeadowPlugin.Model")

@@ -14,6 +14,11 @@
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.jetbrains.rider.plugins.meadow.configurations.MeadowConfigurationType" />
 
+        <projectService serviceImplementation="com.jetbrains.rider.plugins.meadow.progress.MeadowProgressListener" preload="true" />
+        <projectService serviceImplementation="com.jetbrains.rider.plugins.meadow.notifications.MeadowDapProgressNotificationService" />
+
+        <notificationGroup id="Meadow Deployment" displayType="BALLOON" key="notification.group.meadow.deployment" />
+
         <platform.dap.debugAdapterSupportProvider
             implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowDebugAdapterSupportProvider" />
         <xdebugger.breakpointType

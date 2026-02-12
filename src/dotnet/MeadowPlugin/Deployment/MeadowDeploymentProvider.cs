@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Application.Parts;
@@ -12,14 +14,11 @@ using JetBrains.Rider.Model;
 using JetBrains.Threading;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
-using Meadow.CLI;
-using Meadow.CLI.Commands.DeviceManagement;
-using Meadow.Hcom;
-using Meadow.Package;
-using Meadow.Software;
 using MeadowPlugin.Logging;
 using MeadowPlugin.Model;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ILogger = JetBrains.Util.ILogger;
 
 namespace MeadowPlugin.Deployment;
@@ -28,43 +27,49 @@ namespace MeadowPlugin.Deployment;
 public class MeadowDeploymentProvider : IDeploymentProvider
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
-    private IMeadowConnection _meadowConnection;
     private DeploymentSessionLogger? _deploymentSessionLogger;
     private readonly MeadowBackendHost _meadowBackendHost;
-
-    private readonly SettingsManager _settingsManager = new SettingsManager();
-    private readonly MeadowConnectionManager _connectionManager;
+    private int _dapSequence = 1;
 
     public MeadowDeploymentProvider(MeadowBackendHost meadowBackendHost)
     {
         _meadowBackendHost = meadowBackendHost;
-        _connectionManager = new MeadowConnectionManager(_settingsManager);
+    }
+
+    private void LogInfo(string message)
+    {
+        _deploymentSessionLogger?.Log(LogLevel.Information, default, message, null, (msg, _) => msg);
+    }
+
+    private void LogError(string message)
+    {
+        _deploymentSessionLogger?.Log(LogLevel.Error, default, message, null, (msg, _) => msg);
     }
 
     public bool IsApplicable(DeploymentArgsBase args)
     {
-        return args is MeadowDeploymentArgs;
+        var isApplicable = args is MeadowDeploymentArgs;
+        OurLogger.Info($"[MEADOW] IsApplicable called: args type={args?.GetType().Name}, result={isApplicable}");
+        return isApplicable;
     }
 
     public void Deploy(DeploymentArgsBase args, DeploymentSession deploymentSession, Lifetime lifetime)
     {
+        OurLogger.Info($"[MEADOW] Deploy called with args type: {args.GetType().Name}");
+        
         if (args is not MeadowDeploymentArgs meadowDeploymentArgs)
         {
             throw new ArgumentException($"Unexpected deployment args: {args.GetType().Name}");
         }
 
+        OurLogger.Info("[MEADOW] Starting background deployment task...");
         lifetime.StartBackground(async () =>
         {
             MeadowDeploymentResult result;
             try
             {
-                // Session cleanup now handled by DAP adapter — DropSessionForSerialPort removed
-                result = await GetDeploymentResult(deploymentSession, lifetime, meadowDeploymentArgs);
-                if (result.Status == DeploymentResultStatus.Success)
-                {
-                    await _meadowBackendHost.RegisterAppSessionAsync(meadowDeploymentArgs.Device.SerialPort,
-                        meadowDeploymentArgs.DebugPort, _meadowConnection);
-                }
+                OurLogger.Info("[MEADOW] Calling DeployViaDapAsync...");
+                result = await DeployViaDapAsync(deploymentSession, lifetime, meadowDeploymentArgs);
             }
             catch (TaskCanceledException)
             {
@@ -80,110 +85,244 @@ public class MeadowDeploymentProvider : IDeploymentProvider
         });
     }
 
-    private async Task<MeadowDeploymentResult> GetDeploymentResult(DeploymentSession deploymentSession,
+    /// <summary>
+    /// Deploy via DAP adapter (meadow-debugging.exe) - unified approach across all IDEs.
+    /// </summary>
+    private async Task<MeadowDeploymentResult> DeployViaDapAsync(
+        DeploymentSession deploymentSession,
         Lifetime lifetime,
         MeadowDeploymentArgs meadowDeploymentArgs)
     {
+        OurLogger.Info("[MEADOW] === DEPLOYMENT STARTED (DAP) ===");
         _deploymentSessionLogger = new DeploymentSessionLogger(deploymentSession);
 
-        return await Task.Run(async () =>
+        // Locate DAP adapter executable
+        var pluginPath = _meadowBackendHost.GetType().Assembly.Location;
+        var adapterPath = Path.Combine(Path.GetDirectoryName(pluginPath)!, "DapAdapter", "meadow-debugging.exe");
+        OurLogger.Info($"[MEADOW] Plugin path: {pluginPath}");
+        OurLogger.Info($"[MEADOW] Adapter path: {adapterPath}");
+
+        if (!File.Exists(adapterPath))
         {
-            if (_meadowConnection != null)
-            {
-                _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                _meadowConnection.DeviceMessageReceived -= MeadowConnection_DeviceMessageReceived;
-                _meadowConnection = null;
-            }
+            LogError($"DAP adapter not found at: {adapterPath}");
+            return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+        }
 
-            _meadowConnection = _connectionManager.GetConnection(meadowDeploymentArgs.Device.SerialPort);
+        // Generate MSBuild property file for adapter
+        var appPath = meadowDeploymentArgs.AppPath;
+        var outputPath = Path.GetDirectoryName(appPath) ?? ".";
+        var assemblyName = Path.GetFileNameWithoutExtension(appPath);
+        var propsFile = Path.Combine(Path.GetTempPath(), $"meadow_deploy_{Guid.NewGuid():N}.props");
+        File.WriteAllText(propsFile, $"OutputPath={outputPath}{Path.DirectorySeparatorChar}\nAssemblyName={assemblyName}\n");
 
-            if (_meadowConnection == null)
+        var projectPath = Path.GetDirectoryName(meadowDeploymentArgs.ProjectFilePath) ?? ".";
+        var configuration = "Debug"; // Could be extracted from args if needed
+
+        try
+        {
+            var processInfo = new ProcessStartInfo
             {
-                deploymentSession.OutputAdded(new OutputMessage(
-                    "A device has not been selected. Please attach a device, then select it from the Device list.",
-                    DeployMessageKind.Error));
+                FileName = adapterPath,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            using var process = Process.Start(processInfo);
+            if (process == null)
+            {
+                LogError("Failed to start DAP adapter process");
                 return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
             }
-            else
+
+            OurLogger.Info($"[MEADOW] DAP adapter process started, PID: {process.Id}");
+
+            // Initialize DAP protocol
+            OurLogger.Info("[MEADOW] Sending initialize request...");
+            await SendDapRequestAsync(process.StandardInput, "initialize", new
             {
-                _meadowConnection.FileWriteProgress += MeadowConnection_DeploymentProgress;
-                _meadowConnection.DeviceMessageReceived += MeadowConnection_DeviceMessageReceived;
+                clientID = "rider",
+                adapterID = "meadow",
+                linesStartAt1 = true,
+                columnsStartAt1 = true,
+                pathFormat = "path"
+            });
 
-                await _meadowConnection.WaitForMeadowAttach(lifetime);
+            // Launch with debugPort from args
+            OurLogger.Info($"[MEADOW] Sending launch request with debugPort: {meadowDeploymentArgs.DebugPort}, serial: {meadowDeploymentArgs.Device.SerialPort}");
+            await SendDapRequestAsync(process.StandardInput, "launch", new
+            {
+                type = "meadow",
+                request = "launch",
+                projectPath = projectPath,
+                projectConfiguration = configuration,
+                serial = meadowDeploymentArgs.Device.SerialPort,
+                msbuildPropertyFile = propsFile,
+                debugPort = meadowDeploymentArgs.DebugPort
+            });
 
-                _deploymentSessionLogger.LogInformation("Checking runtime state...");
-                if (await _meadowConnection.IsRuntimeEnabled(lifetime))
-                {
-                    _deploymentSessionLogger.LogInformation("Disabling runtime...");
-                    await _meadowConnection.RuntimeDisable(lifetime);
-                }
+            // Monitor DAP events
+            OurLogger.Info("[MEADOW] Starting DAP event monitoring...");
+            var success = await MonitorDapDeploymentAsync(process, lifetime);
+            OurLogger.Info($"[MEADOW] DAP monitoring completed, success: {success}");
 
-                var deviceInfo = await _meadowConnection.GetDeviceInfo(lifetime);
-                string osVersion = deviceInfo?.OsVersion;
-                _deploymentSessionLogger.LogInformation($"Found Meadow with OS v{osVersion}");
+            // Disconnect
+            await SendDapRequestAsync(process.StandardInput, "disconnect", new { });
 
-                var fileManager = new FileManager(null);
-                await fileManager.Refresh();
-
-                var isDebugging = meadowDeploymentArgs.DebugPort > 0;
-
-                try
-                {
-                    var packageManager = new PackageManager(fileManager);
-
-                    var appPath = meadowDeploymentArgs.AppPath;
-                    if (!File.Exists(appPath))
-                    {
-                        _deploymentSessionLogger.LogInformation($"Deployment path '{appPath}' does not exist.");
-                        return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-                    }
-
-                    if (!string.IsNullOrEmpty(appPath))
-                    {
-                        await packageManager.TrimApplication(new System.IO.FileInfo(appPath), osVersion, isDebugging,
-                            null, _deploymentSessionLogger, lifetime);
-
-                        var appFolder = Path.GetDirectoryName(appPath) ?? ".";
-                        _deploymentSessionLogger.LogInformation("Deploying application...");
-                        await AppManager.DeployApplication(packageManager, _meadowConnection, osVersion, appFolder,
-                            isDebugging, false, _deploymentSessionLogger, lifetime);
-
-                        await Task.Delay(1500);
-
-                        await _meadowConnection.RuntimeEnable(lifetime);
-                    }
-                }
-                catch (Exception e)
-                {
-                    _deploymentSessionLogger.LogError(e.Message);
-                    return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
-                }
-                finally
-                {
-                    _meadowConnection.FileWriteProgress -= MeadowConnection_DeploymentProgress;
-                }
-
-                return new MeadowDeploymentResult(DeploymentResultStatus.Success);
+            if (!process.HasExited)
+            {
+                await Task.Run(() => process.WaitForExit(5000));
             }
-        });
-    }
 
-    private async void MeadowConnection_DeviceMessageReceived(object sender, (string message, string source) e)
-    {
-        if (_deploymentSessionLogger != null)
+            return success
+                ? new MeadowDeploymentResult(DeploymentResultStatus.Success)
+                : new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+        }
+        catch (Exception ex)
         {
-            await _deploymentSessionLogger.ReportDeviceMessage(e.source, e.message);
+            OurLogger.Error(ex, "DAP deployment failed");
+            LogError($"Deployment error: {ex.Message}");
+            return new MeadowDeploymentResult(DeploymentResultStatus.Failed);
+        }
+        finally
+        {
+            // Cleanup temp file
+            try { if (File.Exists(propsFile)) File.Delete(propsFile); }
+            catch { /* Ignore cleanup errors */ }
         }
     }
 
-    private async void MeadowConnection_DeploymentProgress(object sender,
-        (string fileName, long completed, long total) e)
+    private async Task SendDapRequestAsync(StreamWriter stdin, string command, object arguments)
     {
-        var p = (uint)((e.completed / (double)e.total) * 100d);
-
-        if (_deploymentSessionLogger != null)
+        var request = new
         {
-            await _deploymentSessionLogger.ReportFileProgress(e.fileName, p);
+            seq = _dapSequence++,
+            type = "request",
+            command = command,
+            arguments = arguments
+        };
+
+        var json = JsonConvert.SerializeObject(request);
+        var content = Encoding.UTF8.GetBytes(json);
+
+        var header = $"Content-Length: {content.Length}\r\n\r\n";
+        await stdin.WriteAsync(header);
+        await stdin.WriteAsync(json);
+        await stdin.FlushAsync();
+    }
+
+    private async Task<bool> MonitorDapDeploymentAsync(Process process, Lifetime lifetime)
+    {
+        bool deploymentComplete = false;
+        bool deploymentSuccess = true;
+        int messageCount = 0;
+
+        OurLogger.Info("[MEADOW] MonitorDapDeploymentAsync started");
+
+        while (!process.HasExited && !lifetime.IsTerminated)
+        {
+            var line = await process.StandardOutput.ReadLineAsync();
+            if (line == null)
+            {
+                OurLogger.Info("[MEADOW] Reached end of stream");
+                break;
+            }
+
+            // DAP messages are preceded by Content-Length header
+            if (line.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase))
+            {
+                await process.StandardOutput.ReadLineAsync(); // Skip blank line
+                var contentLength = int.Parse(line.Substring(15).Trim());
+
+                // Read JSON message
+                var messageBuffer = new char[contentLength];
+                await process.StandardOutput.ReadAsync(messageBuffer, 0, contentLength);
+                var messageJson = new string(messageBuffer);
+
+                try
+                {
+                    messageCount++;
+                    var message = JObject.Parse(messageJson);
+                    var messageType = message["type"]?.ToString();
+                    
+                    OurLogger.Info($"[MEADOW] Message #{messageCount}: type={messageType}");
+
+                    if (messageType == "event")
+                    {
+                        var eventType = message["event"]?.ToString();
+                        OurLogger.Info($"[MEADOW] Event received: {eventType}");
+                        var body = message["body"] as JObject;
+                        HandleDapEvent(eventType, body);
+
+                        if (eventType == "terminated" || eventType == "exited")
+                        {
+                            deploymentComplete = true;
+                            break;
+                        }
+                    }
+                    else if (messageType == "response")
+                    {
+                        var command = message["command"]?.ToString();
+                        var success = message["success"]?.ToObject<bool>() ?? false;
+
+                        if (command == "launch" && !success)
+                        {
+                            var errorMsg = message["message"]?.ToString() ?? "Unknown error";
+                            LogError($"Launch failed: {errorMsg}");
+                            deploymentSuccess = false;
+                            break;
+                        }
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    OurLogger.Warn($"[MEADOW] Failed to parse DAP message: {ex.Message}");
+                }
+            }
+        }
+
+        OurLogger.Info($"[MEADOW] MonitorDapDeploymentAsync completed: {messageCount} messages, success={deploymentSuccess}, complete={deploymentComplete}");
+        return deploymentSuccess && deploymentComplete;
+    }
+
+    private void HandleDapEvent(string eventType, JObject body)
+    {
+        OurLogger.Info($"[MEADOW] HandleDapEvent called: eventType={eventType}");
+        
+        switch (eventType)
+        {
+            case "output":
+                var output = body?["output"]?.ToString();
+                if (!string.IsNullOrEmpty(output))
+                {
+                    LogInfo(output.TrimEnd());
+                }
+                break;
+
+            case "progressStart":
+                var title = body?["title"]?.ToString() ?? "Deployment";
+                LogInfo($"[Progress] {title}");
+                break;
+
+            case "progressUpdate":
+                var message = body?["message"]?.ToString() ?? "";
+                var percentage = body?["percentage"]?.ToObject<int>() ?? 0;
+                var fileName = body?["progressId"]?.ToString() ?? "App.dll";
+                
+                LogInfo($"[Progress] {percentage}% - {message}");
+                
+                // Fire RD signal for Rider UI notifications
+                var status = percentage >= 100 ? "Complete" : "Deploying";
+                OurLogger.Info($"[MEADOW] Firing progressUpdate signal: {fileName} - {percentage}% - {status}");
+                _meadowBackendHost.Model.ProgressUpdate.Fire(new ProgressUpdate(fileName, percentage, status));
+                break;
+
+            case "progressEnd":
+                var endMessage = body?["message"]?.ToString() ?? "Deployment complete";
+                LogInfo($"[Progress] {endMessage}");
+                break;
         }
     }
 }

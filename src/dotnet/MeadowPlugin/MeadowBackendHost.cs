@@ -33,6 +33,8 @@ public class MeadowBackendHost
     private readonly Lifetime _solutionLifetime;
     private readonly MeadowPluginModel _meadowPluginModel;
 
+    public MeadowPluginModel Model => _meadowPluginModel;
+
     // AppRunSession removed — all device output handled by DAP adapter
 
     IMeadowConnection? _meadowConnection;

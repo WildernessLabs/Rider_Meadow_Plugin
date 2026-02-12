@@ -48,6 +48,9 @@ class MeadowDebugAdapterSupportProvider : DebugAdapterSupportProvider<MeadowDebu
                 val adapterExe = pluginPath.resolve("DapAdapter/meadow-debugging.exe")
 
                 val commandLine = GeneralCommandLine(adapterExe.toString())
+                
+                // TODO: Add custom DAP event interception for progress reporting
+                // For now, use standard handle - IntelliJ Platform auto-handles DAP protocol
                 return CommandLineDebugAdapterHandle(commandLine)
             }
 
