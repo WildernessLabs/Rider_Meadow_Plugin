@@ -4,13 +4,27 @@
     <name>Meadow Rider</name>
     <vendor>Wilderness Labs</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.rider</depends>
+    <dependencies>
+        <plugin id="com.intellij.modules.rider"/>
+        <module name="intellij.platform.dap"/>
+    </dependencies>
 
     <resource-bundle>messages.MeadowBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.jetbrains.rider.plugins.meadow.configurations.MeadowConfigurationType" />
+
+        <projectService serviceImplementation="com.jetbrains.rider.plugins.meadow.progress.MeadowProgressListener" preload="true" />
+        <projectService serviceImplementation="com.jetbrains.rider.plugins.meadow.notifications.MeadowDapProgressNotificationService" />
+
+        <notificationGroup id="Meadow Deployment" displayType="BALLOON" key="notification.group.meadow.deployment" />
+
+        <platform.dap.debugAdapterSupportProvider
+            implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowDebugAdapterSupportProvider" />
+        <xdebugger.breakpointType
+            implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowLineBreakpointType" />
+        <xdebugger.breakpointType
+            implementation="com.jetbrains.rider.plugins.meadow.dap.MeadowExceptionBreakpointType" />
     </extensions>
 
     <idea-version since-build="251" until-build="251.*"/>

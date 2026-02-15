@@ -18,7 +18,6 @@ using JetBrains.Util;
 using JetBrains.Util.Logging;
 using Meadow.CLI.Commands.DeviceManagement;
 using Meadow.Hcom;
-using MeadowPlugin.Deployment;
 using MeadowPlugin.Logging;
 using MeadowPlugin.Model;
 using Microsoft.Extensions.Logging;
@@ -29,12 +28,14 @@ namespace MeadowPlugin;
 [SolutionComponent(Instantiation.DemandAnyThreadUnsafe)]
 public class MeadowBackendHost
 {
-    private static readonly ILogger OurLogger = Logger.GetLogger<MeadowDeploymentProvider>();
+    private static readonly ILogger OurLogger = Logger.GetLogger<MeadowBackendHost>();
 
     private readonly Lifetime _solutionLifetime;
     private readonly MeadowPluginModel _meadowPluginModel;
 
-    private readonly Dictionary<string, AppRunSession> _runSessions = new();
+    public MeadowPluginModel Model => _meadowPluginModel;
+
+    // AppRunSession removed — all device output handled by DAP adapter
 
     IMeadowConnection? _meadowConnection;
     private MeadowActionsLogger _meadowActionsLogger;
@@ -63,6 +64,11 @@ public class MeadowBackendHost
         _solutionLifetime = solutionLifetime;
         _meadowPluginModel = solution.GetProtocolSolution().GetMeadowPluginModel();
         _meadowPluginModel.GetSerialPorts.SetAsync(GetSerialPortsAsync);
+        // DropSessionForPort: no-op since AppRunSession was removed (all output via DAP)
+        _meadowPluginModel.DropSessionForPort.SetAsync(async (lifetime, port) =>
+        {
+            return Unit.Instance;
+        });
 
         _meadowActionsLogger = new MeadowActionsLogger();
     }
@@ -94,39 +100,16 @@ public class MeadowBackendHost
 
         if (_meadowConnection != null)
         {
-            var model = new AppRunSessionModel();
-            var sessionLifetimeDef = _solutionLifetime.CreateNested();
-            model.Terminate.AdviseOnce(sessionLifetimeDef.Lifetime,
-                _ => { DropSessionForSerialPort(serialPort).NoAwait(); });
-
             var isDebugging = debugPort > 0;
 
-            var appRunSession = new AppRunSession(serialPort, _meadowConnection, model, sessionLifetimeDef);
-
-            _runSessions.Add(appRunSession.SerialPort, appRunSession);
-
-            await _solutionLifetime.StartMainUnguarded(async () =>
+            // DAP adapter handles all device output — AppRunSession removed for centralization
+            if (isDebugging)
             {
-                _meadowPluginModel.RunSessions.Add(sessionLifetimeDef.Lifetime,
-                    KeyValuePair.Create(serialPort, model));
-
-                // Debugger only returns when session is done
-                if (isDebugging)
-                {
-                    _meadowActionsLogger.LogInformation("Debugging application...");
-                    await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger,
-                        sessionLifetimeDef.Lifetime, "Rider");
-                }
-            });
+                _meadowActionsLogger.LogInformation("Debugging application...");
+                var sessionLifetime = _solutionLifetime.CreateNested();
+                await _meadowConnection.StartDebuggingSession(debugPort, _meadowActionsLogger,
+                    sessionLifetime.Lifetime, "Rider");
+            }
         }
-    }
-
-    public async Task DropSessionForSerialPort(string serialPort)
-    {
-        var appRunSession = _runSessions.TryGetValue(serialPort);
-        if (appRunSession == null)
-            return;
-        _runSessions.Remove(serialPort);
-        await appRunSession.TerminateAsync();
     }
 }

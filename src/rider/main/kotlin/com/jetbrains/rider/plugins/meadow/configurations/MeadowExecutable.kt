@@ -1,6 +1,7 @@
 package com.jetbrains.rider.plugins.meadow.configurations
 
 import com.intellij.execution.CantRunException
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.plugins.meadow.devices.MeadowDevice
 import com.jetbrains.rider.plugins.meadow.messages.MeadowBundle
@@ -10,6 +11,8 @@ import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.RiderRunBundle
 import com.jetbrains.rider.run.devices.ActiveDeviceManager
 import java.io.File
+
+private val LOG = Logger.getInstance("MeadowExecutable")
 
 data class MeadowExecutable(
     val runnableProject: RunnableProject,
@@ -23,14 +26,31 @@ fun MeadowConfigurationParameters.toExecutable(project: Project) : MeadowExecuta
         ?: throw CantRunException(MeadowBundle.message("meadow.os.device.not.selected.message"))
     val runnableProject = tryGetRunnableProject(projectFilePath, project)
         ?: throw CantRunException(RiderRunBundle.message("dialog.message.not.specified.project.error"))
-    val appPath = runnableProject.projectOutputs.singleOrNull() ?: throw CantRunException(MeadowBundle.message("meadow.app.does.not.exist.message"))
-
+    
+    LOG.info("Selected project: $projectFilePath")
+    LOG.info("Matched RunnableProject: ${runnableProject.projectFilePath}")
+    LOG.info("ProjectOutputs count: ${runnableProject.projectOutputs.size}")
+    runnableProject.projectOutputs.forEachIndexed { index, output ->
+        LOG.info("  [$index] exePath=${output.exePath}")
+    }
+    
+    val appPath = runnableProject.projectOutputs.singleOrNull() ?: throw CantRunException(
+        MeadowBundle.message("meadow.app.does.not.exist.message") + 
+        " (found ${runnableProject.projectOutputs.size} outputs for ${runnableProject.projectFilePath})"
+    )
+    
+    LOG.info("Selected output: ${appPath.exePath}")
+    
     return MeadowExecutable(runnableProject, projectFilePath, File(appPath.exePath), device)
 }
 
 private fun tryGetRunnableProject(projectFilePath: String, project: Project): RunnableProject? {
     val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
     if (runnableProjects != null) {
+        LOG.info("Looking for project: $projectFilePath among ${runnableProjects.size} runnable projects")
+        runnableProjects.forEachIndexed { index, rp ->
+            LOG.info("  [$index] ${rp.projectFilePath} (kind=${rp.kind})")
+        }
         return runnableProjects.singleOrNull {
             it.projectFilePath == projectFilePath && isTypeApplicable(it.kind)
         }

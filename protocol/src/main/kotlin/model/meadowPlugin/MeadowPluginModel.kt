@@ -23,20 +23,21 @@ object MeadowPluginModel : Ext(SolutionModel.Solution) {
     private val MeadowDeploymentResult = structdef extends DeploymentResultBase {
     }
 
-    private val AppRunSessionModel = classdef {
-        sink("outputReceived", PredefinedType.string).async
-        source("terminate", PredefinedType.void).async
-    }
-
-    private val AppOutput = structdef {
-        field("serialPort", PredefinedType.string)
-        field("text", PredefinedType.string)
+    private val ProgressUpdate = structdef {
+        field("fileName", PredefinedType.string)
+        field("percentage", PredefinedType.int)
+        field("status", PredefinedType.string)
     }
 
     init {
         call("getSerialPorts", PredefinedType.void, immutableList(PredefinedType.string)).async
-        map("runSessions", PredefinedType.string, AppRunSessionModel).async
-        sink("appOutput", AppOutput)
+        call("dropSessionForPort", PredefinedType.string, PredefinedType.void).async
+        signal("progressUpdate", ProgressUpdate)
+        // DAP progress event signals (fired from DAP event interceptor)
+        signal("showProgressNotification", PredefinedType.string)
+        signal("updateProgressNotification", PredefinedType.string)
+        signal("hideProgressNotification", PredefinedType.string)
+        // runSessions + appOutput removed — all device output handled by DAP adapter
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.plugins.meadow.model")
         setting(CSharp50Generator.Namespace, "MeadowPlugin.Model")
     }
