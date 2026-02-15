@@ -67,11 +67,9 @@ jobs:
       - name: Setup NuGet
         uses: nuget/setup-nuget@v2
 
-      - name: Install FallBack Sources
+      - name: Add FallBack NuGet Source
         run: |
-          nuget install Microsoft.SymbolStore -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
-        # May not be needed for now, but keeping it around nuget install Microsoft.FileFormats -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
-
+          dotnet nuget add source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" --name dotnet-tools-fallback
       
       # Build Meadow.Debugging (copies DAP files to sibling extension repos)
       - name: Build Meadow.Debugging
