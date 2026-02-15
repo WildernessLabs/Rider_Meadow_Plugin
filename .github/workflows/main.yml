@@ -64,6 +64,9 @@ jobs:
           ref: main
           submodules: true
 
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+
       - name: Install FallBack Sources
         run: |
           nuget install Microsoft.SymbolStore -Version 1.0.411401 -FallbackSource "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json"
