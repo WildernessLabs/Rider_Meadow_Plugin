@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Application.Parts;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Model;
@@ -8,7 +9,7 @@ using JetBrains.Util;
 
 namespace MeadowPlugin;
 
-[SolutionComponent]
+[SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class MeadowRunnableProjectProvider : IRunnableProjectProvider
 {
     private const string MeadowOsSdkPrefix = "Meadow.Sdk";

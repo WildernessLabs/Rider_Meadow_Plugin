@@ -37,6 +37,9 @@ val dotNetPluginId: String by project
 val dotNetSrcDir = File(projectDir, "src/dotnet")
 val dotNetProjectPath = File("$dotNetSrcDir/$dotNetPluginId/$dotNetPluginId.csproj")
 
+val dapAdapterSourceDir = File(projectDir.parentFile, "Meadow.Debugging/Meadow.Debugging.Host/bin/${buildConfiguration}/net8.0")
+val dapAdapterDestDir = File(projectDir, "src/rider/resources/DapAdapter")
+
 version = pluginVersion
 
 val riderSdkPath by lazy {
@@ -49,10 +52,10 @@ val riderSdkPath by lazy {
 
 dependencies {
     intellijPlatform {
-        rider(riderSdkVersion)
+        rider(riderSdkVersion, useInstaller = false)
         jetbrainsRuntime()
-        instrumentationTools()
         bundledLibrary("lib/testFramework.jar")
+        bundledModule("intellij.platform.dap")
     }
     testImplementation(libs.openTest4J)
 }
@@ -126,12 +129,26 @@ tasks {
         }
     }
 
+    val copyDapAdapter by registering(Copy::class) {
+        description = "Copy VSCode Meadow DAP adapter to plugin resources"
+        from(dapAdapterSourceDir)
+        into(dapAdapterDestDir)
+        onlyIf { dapAdapterSourceDir.exists() }
+        doFirst {
+            if (!dapAdapterSourceDir.exists()) {
+                println("WARNING: DAP adapter source directory not found at $dapAdapterSourceDir")
+            } else {
+                println("Copying DAP adapter from $dapAdapterSourceDir to $dapAdapterDestDir")
+            }
+        }
+    }
+
     withType<KotlinCompile> {
         dependsOn(rdGen)
     }
 
     buildPlugin {
-        dependsOn(publishDotnet)
+        dependsOn(publishDotnet, copyDapAdapter)
     }
 
     patchPluginXml {
@@ -152,7 +169,7 @@ tasks {
     }
 
     withType<PrepareSandboxTask> {
-        dependsOn(publishDotnet)
+        dependsOn(publishDotnet, copyDapAdapter)
 
         val outputFolder = file("$dotNetSrcDir/$dotNetPluginId/bin/$buildConfiguration/publish")
 
@@ -160,12 +177,14 @@ tasks {
             into("${rootProject.name}/net-v2")
             exclude(
                 "**/*/System.Drawing.Common.dll",
+                "**/*/System.Management.dll",
                 "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
                 "Microsoft.Extensions.DependencyInjection.dll",
                 "Microsoft.Extensions.Logging.Abstractions.dll",
                 "Microsoft.Extensions.Logging.dll",
                 "Microsoft.Extensions.Options.dll",
                 "Microsoft.Extensions.Primitives.dll",
+                "Microsoft.IdentityModel.Abstractions.dll",
                 "Microsoft.IdentityModel.JsonWebTokens.dll",
                 "Microsoft.IdentityModel.Logging.dll",
                 "Microsoft.IdentityModel.Tokens.dll",
@@ -182,9 +201,14 @@ tasks {
                 "System.IO.Ports.dll",
                 "System.Security.Cryptography.ProtectedData.dll",
                 "System.Security.Permissions.dll",
+                "System.Text.Json.dll",
                 "System.Windows.Extensions.dll",
                 "YamlDotNet.dll"
             )
+        }
+
+        from(dapAdapterDestDir) {
+            into("${rootProject.name}/DapAdapter")
         }
 
         val templateBaseDir = projectDir.parentFile.resolve("Meadow.Sdk/Meadow_DotNet_SDK/Project_Templates/templates")

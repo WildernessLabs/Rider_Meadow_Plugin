@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JetBrains.DataFlow;
 using JetBrains.Util;
 using JetBrains.Util.Logging;
 using Microsoft.Extensions.Logging;
 using ILogger = JetBrains.Util.ILogger;
 
-namespace MeadowPlugin;
+namespace MeadowPlugin.Logging;
 
 internal class MeadowActionsLogger : Microsoft.Extensions.Logging.ILogger
 {
     private static readonly ILogger OurLogger = Logger.GetLogger<MeadowActionsLogger>();
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+        Func<TState, Exception?, string> formatter)
     {
         switch (logLevel)
         {

@@ -1,6 +1,4 @@
 name: Rider plugin
-env:
-  IDE_TOOLS_RELEASE_VERSION: 1.0.0
 
 on:
   push:
@@ -19,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.image }}
     strategy:
       matrix:
-        image: [macos-13, ubuntu-22.04, windows-2022]
+        image: [macos-latest, ubuntu-latest, windows-latest]
       fail-fast: false
     env:
       DOTNET_NOLOGO: 1
@@ -30,16 +28,7 @@ jobs:
         with:
           path: main
 
-      - if: ${{ github.ref == 'refs/heads/main' }}
-        name: Checkout Meadow.CLI.Core side-by-side
-        uses: actions/checkout@v4
-        with:
-          repository: WildernessLabs/Meadow.CLI
-          path: Meadow.CLI
-          ref: main
-
-      - if: ${{ github.ref != 'refs/heads/main' }}
-        name: Checkout Meadow.CLI.Core side-by-side
+      - name: Checkout Meadow.CLI side-by-side
         uses: actions/checkout@v4
         with:
           repository: WildernessLabs/Meadow.CLI
@@ -51,9 +40,44 @@ jobs:
         with:
           repository: WildernessLabs/Meadow.Contracts
           path: Meadow.Contracts
-          ref: main
+          ref: develop
+      
+      - name: Checkout Meadow.Units side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Units
+          path: Meadow.Units
+          ref: develop
 
-      - if: matrix.image == 'ubuntu-22.04'
+      - name: Checkout Meadow.Logging side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Logging
+          path: Meadow.Logging
+          ref: develop
+
+      - name: Checkout Meadow.Debugging side-by-side
+        uses: actions/checkout@v4
+        with:
+          repository: WildernessLabs/Meadow.Debugging
+          path: Meadow.Debugging
+          ref: main
+          submodules: true
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+
+      - name: Add FallBack NuGet Source
+        run: |
+          dotnet nuget add source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" --name dotnet-tools-fallback
+      
+      # Build Meadow.Debugging (copies DAP files to sibling extension repos)
+      - name: Build Meadow.Debugging
+        run: |
+          dotnet restore Meadow.Debugging/Meadow.Debugging.sln
+          dotnet build Meadow.Debugging/Meadow.Debugging.sln -c Debug --no-restore -p:TargetIDE=rider
+
+      - if: matrix.image == 'ubuntu-latest'
         name: Free disk space
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -69,7 +93,8 @@ jobs:
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.x
       
       - name: Build Backend
         run: dotnet build -c Release
@@ -80,20 +105,28 @@ jobs:
         run: ./gradlew -PbuildConfiguration=Release -PbuildNumber=${{ github.run_number }} buildPlugin
         working-directory: ./main
 
-      - name: Unpack distribution # for the purpose of uploading. Only on Linux to avoid zip name clash
-        if: matrix.image == 'ubuntu-22.04'
+      - if: matrix.image == 'ubuntu-latest' # for the purpose of uploading. Only on Linux to avoid zip name clash
+        name: Unpack distribution 
         shell: pwsh
         run: main/scripts/Unpack-Distribution.ps1
+      
+      - if: matrix.image == 'ubuntu-latest'
+        name: Read pluginVersion from gradle.properties
+        id: read_version
+        run: |
+          pluginVersion=$(sed -n 's/^pluginVersion=\(.*\)/\1/p' main/gradle.properties)
+          echo "pluginVersion=$pluginVersion"
+          echo "plugin_version=$pluginVersion" >> $GITHUB_ENV
 
-      - name: Upload the artifact
-        if: matrix.image == 'ubuntu-22.04' # Only on Linux to avoid zip name clash
+      - if: matrix.image == 'ubuntu-latest' # Only on Linux to avoid zip name clash
+        name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rider-meadow-plugin-${{ ENV.IDE_TOOLS_RELEASE_VERSION }}
+          name: rider-meadow-plugin-${{ env.plugin_version }}
           path: main/build/distributions/unpacked
 
       # Publish
-      - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
+      - if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && matrix.image == 'ubuntu-latest' }}
         name: Publish
         shell: pwsh
         run: main/scripts/Publish-Distribution.ps1 -Channel dev -AuthToken $env:JETBRAINS_MARKETPLACE_TOKEN
@@ -101,7 +134,7 @@ jobs:
           JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
 
   validation:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     name: "Validate Gradle wrapper"
     steps:
       - uses: actions/checkout@v4
